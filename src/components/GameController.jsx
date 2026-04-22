@@ -187,50 +187,21 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
               <button className="btn btn-danger gtb-end-btn" onClick={onEndGame}>
                 🏁 Kết thúc
               </button>
-            </div>
-          </header>
-
-          {/* Team Selector Panel (always visible on board) */}
-          {phase === 'board' && (
-            <div className="team-selector-bar">
-              <div className="tsb-left-section">
-                <span className="tsb-label">👉 Chọn nhóm đang trả lời:</span>
-                <div className="tsb-tabs">
-                  {teams.map(team => (
-                    <button
-                      key={team.id}
-                      className={`tsb-tab${selectedTeamId === team.id ? ' active' : ''}`}
-                      style={{
-                        '--tc': team.color,
-                        borderColor: selectedTeamId === team.id ? team.color : 'transparent',
-                        color: selectedTeamId === team.id ? team.color : 'rgba(255,255,255,0.55)',
-                      }}
-                      onClick={() => setSelectedTeamId(team.id)}
-                    >
-                      {team.name}
-                      {(teamStars[team.id] ?? 0) > 0 && (
-                        <span className="tsb-star" title="Còn Ngôi Sao Hy Vọng">⭐</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <button
                 className={`btn btn-primary btn-random-pick${isRandomizing ? ' spinning' : ''}`}
                 onClick={handleRandomSelect}
                 disabled={isRandomizing}
               >
-                🎲 Chọn ngẫu nhiên
+                🎲 Chọn câu hỏi ngẫu nhiên
               </button>
             </div>
-          )}
+          </header>
 
           {/* Number Board */}
           <NumberBoard
             usedNumbers={usedNumbers}
             onSelectNumber={phase === 'board' ? handleSelectNumber : () => { }}
-            currentTeam={phase === 'board' ? selectedTeam : null}
+            currentTeam={null}
             randomHighlight={randomHighlight}
           />
         </div>
