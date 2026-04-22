@@ -28,6 +28,7 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
   const [isRandomizing, setIsRandomizing] = useState(false)
   const [randomHighlight, setRandomHighlight] = useState(null)
   const [spinsRemaining, setSpinsRemaining] = useState(0)
+  const [timeLeft, setTimeLeft] = useState(30 * 60) // 30 minutes in seconds
   const audioCtxRef = useRef(null)
   const bgmRef = useRef(null)
 
@@ -44,6 +45,20 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
       }
     }
   }, [phase])
+
+  // Game Countdown Timer (30 mins)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => (prev > 0 ? prev - 1 : 0))
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const formatTime = (secs) => {
+    const m = Math.floor(secs / 60)
+    const s = secs % 60
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+  }
 
   const playShuffleSound = () => {
     if (!audioCtxRef.current) audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)()
@@ -181,6 +196,10 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
               <span className="gtb-title">Kimbap Quiz</span>
             </div>
             <div className="gtb-right">
+              <div className={`gtb-timer ${timeLeft < 300 ? 'urgent' : ''}`}>
+                <span className="gtb-timer-icon">🕒</span>
+                <span className="gtb-timer-val">{formatTime(timeLeft)}</span>
+              </div>
               <span className="gtb-stat">
                 📋 {usedNumbers.length}<span className="gtb-stat-label">/30</span>
               </span>
