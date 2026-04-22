@@ -31,15 +31,15 @@ export default function SpinnerModal({ teams, defaultTeamId, teamStars, teamInve
   const [claimTeamId, setClaimTeamId] = useState(defaultTeamId ?? teams[0]?.id)
   const [showStarPicker, setShowStarPicker] = useState(false)
   const [starPickUsed, setStarPickUsed] = useState(false)
-  const [wheelSize, setWheelSize] = useState(650)
+  const [wheelSize, setWheelSize] = useState(400)
 
   // Handle dynamic wheel resize for drawing logic
   useEffect(() => {
     const handleResize = () => {
       const h = window.innerHeight
-      if (h < 700) setWheelSize(420)
-      else if (h < 850) setWheelSize(520)
-      else setWheelSize(650)
+      if (h < 700) setWheelSize(280)
+      else if (h < 850) setWheelSize(340)
+      else setWheelSize(400)
     }
     handleResize()
     window.addEventListener('resize', handleResize)

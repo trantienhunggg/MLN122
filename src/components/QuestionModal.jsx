@@ -48,7 +48,11 @@ function playStarSound(ctx) {
     })
 }
 
-const TIMER_SECONDS = 20
+const TIER_THEMES = {
+  1: { bg: 'linear-gradient(135deg, #0a1628, #132d50, #0d2035)', accent: '#4FC3F7', glow: 'rgba(79,195,247,0.25)' },
+  2: { bg: 'linear-gradient(135deg, #1f1a08, #352a0c, #1a1505)', accent: '#FFD54F', glow: 'rgba(255,213,79,0.25)' },
+  3: { bg: 'linear-gradient(135deg, #200808, #3a0e0e, #1a0505)', accent: '#FF5252', glow: 'rgba(255,82,82,0.25)' },
+}
 
 export default function QuestionModal({
   question, questionNumber, currentTeam, teams, teamStars,
@@ -69,24 +73,11 @@ export default function QuestionModal({
   const [starUsedOnThisQuestion, setStarUsedOnThisQuestion] = useState(false)
   const audioCtxRef = useRef(null)
   const timerRef = useRef(null)
-  const qBgmRef = useRef(null)
 
-  useEffect(() => {
-    if (qBgmRef.current) qBgmRef.current.volume = 0.5
-  }, [])
-
-  // Adaptive Timer Logic
   const calculateInitialTime = (tier, turn) => {
-    if (tier === 3) return 45 // Tier 3: Always 45s, 1 try
-    if (tier === 2) {
-      if (turn === 1) return 17
-      if (turn === 2) return 10
-      return 5
-    }
-    // Tier 1
-    if (turn === 1) return 17
-    if (turn === 2) return 8
-    return 5
+    if (tier === 3) return 45
+    if (tier === 2) { return turn === 1 ? 17 : turn === 2 ? 10 : 5 }
+    return turn === 1 ? 17 : turn === 2 ? 8 : 5
   }
 
   useEffect(() => {
@@ -94,7 +85,7 @@ export default function QuestionModal({
     const time = calculateInitialTime(question.tier, 1)
     setInitialTime(time)
     setTimeLeft(time)
-    setTimerActive(false) // Wait for MC to select the team
+    setTimerActive(false)
   }, [question])
 
   useEffect(() => {
@@ -109,307 +100,263 @@ export default function QuestionModal({
     return () => clearInterval(timerRef.current)
   }, [timerActive])
 
-  // Auto-transition for Guess questions
   useEffect(() => {
     if (isCorrect && question.type === 'guess') {
-      const timer = setTimeout(() => {
-        onCorrect(question.tier, activeTeam?.id)
-      }, 3000)
+      const timer = setTimeout(() => onCorrect(question.tier, activeTeam?.id), 3000)
       return () => clearTimeout(timer)
     }
   }, [isCorrect, question.type, question.tier, activeTeam, onCorrect])
 
   const hasStar = !starUsedOnThisQuestion && activeTeam && (teamStars[activeTeam.id] ?? 0) > 0
   const isTier3 = question.tier === 3
+  const theme = TIER_THEMES[question.tier] || TIER_THEMES[1]
+  const timerPct = initialTime > 0 ? (timeLeft / initialTime) * 100 : 0
+  const timerColor = timeLeft > 10 ? '#4FC3F7' : timeLeft > 5 ? '#FFD700' : '#FF5252'
+  const optLabels = ['A', 'B', 'C', 'D']
+  const CIRC = 2 * Math.PI * 52
 
-  const handleInitialTeamSelect = (team) => {
-    setActiveTeam(team)
-    setTimerActive(true) // Start the clock once team is confirmed!
-  }
+  const handleInitialTeamSelect = (team) => { setActiveTeam(team); setTimerActive(true) }
 
   const handleOptionClick = (idx) => {
     if (isAnswered) return
     setSelectedOption(idx)
     setTimerActive(false)
     clearInterval(timerRef.current)
-
     if (idx === question.answer) {
-      setIsCorrect(true)
-      setIsAnswered(true)
-      setShowCorrectAnim(true)
+      setIsCorrect(true); setIsAnswered(true); setShowCorrectAnim(true)
       playCorrectSound(audioCtxRef.current)
     } else {
-      setIsCorrect(false)
-      setIsAnswered(true)
-      const r = WRONG_REACTIONS[Math.floor(Math.random() * WRONG_REACTIONS.length)]
-      setReaction(r)
+      setIsCorrect(false); setIsAnswered(true)
+      setReaction(WRONG_REACTIONS[Math.floor(Math.random() * WRONG_REACTIONS.length)])
       playWrongSound(audioCtxRef.current)
       setShowWrongChoices(true)
     }
   }
 
   const handleUseStarExtraLife = () => {
-    setStarUsedOnThisQuestion(true)
-    setShowWrongChoices(false)
-    setIsAnswered(false)
-    setSelectedOption(null)
-    setReaction(null)
-    // Don't change turnCount or ActiveTeam, just reset time for current team
-    setTimeLeft(initialTime)
-    setTimerActive(true)
-    playStarSound(audioCtxRef.current)
-    onUseStarExtraLife(activeTeam.id)
+    setStarUsedOnThisQuestion(true); setShowWrongChoices(false)
+    setIsAnswered(false); setSelectedOption(null); setReaction(null)
+    setTimeLeft(initialTime); setTimerActive(true)
+    playStarSound(audioCtxRef.current); onUseStarExtraLife(activeTeam.id)
   }
 
-  const handleOpenStealUI = () => {
-    setShowWrongChoices(false)
-    setShowStealUI(true)
-  }
+  const handleOpenStealUI = () => { setShowWrongChoices(false); setShowStealUI(true) }
 
   const handleSteal = (newTeam) => {
-    setActiveTeam(newTeam)
-    setTurnCount(prev => prev + 1)
+    setActiveTeam(newTeam); setTurnCount(prev => prev + 1)
     const nextTime = calculateInitialTime(question.tier, turnCount + 1)
-    setInitialTime(nextTime)
-    setTimeLeft(nextTime)
-    setIsAnswered(false)
-    setSelectedOption(null)
-    setReaction(null)
-    setShowStealUI(false)
-    setTimerActive(true)
-    setStarUsedOnThisQuestion(false)
+    setInitialTime(nextTime); setTimeLeft(nextTime)
+    setIsAnswered(false); setSelectedOption(null); setReaction(null)
+    setShowStealUI(false); setTimerActive(true); setStarUsedOnThisQuestion(false)
   }
 
-  const timerPct = initialTime > 0 ? (timeLeft / initialTime) * 100 : 0
-  const timerColor = timeLeft > 10 ? '#4FC3F7' : timeLeft > 5 ? '#FFD700' : '#FF5252'
-  const optLabels = ['A', 'B', 'C', 'D']
-
   return (
-    <div className="q-modal-backdrop">
-      {/* Background Music Logic */}
-      <audio ref={qBgmRef} src="/bgm-question.mp3" autoPlay loop />
+    <div className="qp-page" style={{ background: theme.bg }}>
+      {/* Background orbs */}
+      <div className="qp-orb qp-orb-1" style={{ background: `radial-gradient(circle, ${theme.glow}, transparent)` }} />
+      <div className="qp-orb qp-orb-2" style={{ background: `radial-gradient(circle, ${theme.glow}, transparent)` }} />
 
-      <div className="q-modal glass tiered-modal">
-        {/* Tier Indicator */}
-        <div className={`q-tier-badge tier-${question.tier}`}>
-          {Array(question.tier).fill('⭐').join('')} Bậc {question.tier}
-        </div>
-
-        {/* Header */}
-        <div className="q-modal-header">
-          <div className="q-num-badge">Câu #{questionNumber}</div>
-          <div className="q-team-label" style={{ color: activeTeam?.color || 'white' }}>
-            <span className="q-team-dot" style={{ background: activeTeam?.color || 'white' }} />
-            {activeTeam?.name || '---'}
-            {hasStar && <span title="Còn Ngôi Sao Hy Vọng" style={{ marginLeft: 6 }}>⭐</span>}
+      <div className="qp-container">
+        {/* ── HEADER ── */}
+        <header className="qp-header">
+          <div className={`qp-tier tier-${question.tier}`}>
+            <span className="qp-tier-stars">{'★'.repeat(question.tier)}</span>
+            <span>Bậc {question.tier}</span>
           </div>
-          <div className="q-timer" style={{ color: timerColor }}>
-            <svg className="q-timer-ring" viewBox="0 0 40 40">
-              <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="3" />
-              <circle cx="20" cy="20" r="16" fill="none" stroke={timerColor} strokeWidth="3"
-                strokeDasharray={`${2 * Math.PI * 16}`}
-                strokeDashoffset={`${2 * Math.PI * 16 * (1 - timerPct / 100)}`}
-                strokeLinecap="round"
-                style={{ transform: 'rotate(-90deg)', transformOrigin: 'center', transition: 'stroke-dashoffset 1s linear, stroke 0.3s' }}
-              />
-            </svg>
-            <span className="q-timer-num">{timeLeft}</span>
-          </div>
-        </div>
 
-        {/* Question body */}
-        <div className="q-question-text">{question.question}</div>
-        {question.image && (
-          <div style={{ textAlign: 'center', marginBottom: '15px' }}>
-            <img src={question.image} alt="Question Graphic" style={{ maxWidth: '100%', maxHeight: '30vh', borderRadius: '12px', objectFit: 'contain', filter: 'drop-shadow(0 4px 15px rgba(0,0,0,0.2))' }} />
-          </div>
-        )}
-
-        {/* Interactive Options or Team Selection */}
-        {/* Interactive Options or Team Selection */}
-        {!activeTeam && (
-          <div className="q-team-selector" style={{ marginTop: '20px', textAlign: 'center', marginBottom: '20px' }}>
-            <h3 style={{ marginBottom: '15px', fontSize: '1.2rem', color: '#FFD700', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>Đội nào giành quyền trả lời?</h3>
-            <div className="sm-team-list" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              {teams.map(t => (
-                <button
-                  key={t.id}
-                  className="btn"
-                  style={{ background: t.color, color: 'white', padding: '8px 16px', fontSize: '1rem', borderRadius: '50px', boxShadow: '0 4px 15px rgba(0,0,0,0.3)', border: '2px solid rgba(255,255,255,0.4)', cursor: 'pointer' }}
-                  onClick={() => handleInitialTeamSelect(t)}
-                >
-                  {t.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {question.type === 'guess' ? (
-          <div className="q-guess-area" style={{ opacity: activeTeam ? 1 : 0.6, transition: 'opacity 0.3s' }}>
-            <div className="q-guess-word" style={{
-              fontSize: '2.5rem',
-              letterSpacing: '8px',
-              textAlign: 'center',
-              margin: '20px 0',
-              fontWeight: '800',
-              color: isCorrect && isAnswered ? '#166534' : '#FFD700',
-              textShadow: isCorrect && isAnswered ? 'none' : '0 4px 15px rgba(255,215,0,0.4)',
-              padding: '20px',
-              background: isCorrect && isAnswered ? 'rgba(117, 213, 240, 0.6)' : 'rgba(0,0,0,0.3)',
-              borderRadius: '15px',
-              border: isCorrect && isAnswered ? '2px solid rgba(117, 213, 240, 1)' : '2px dashed rgba(255,215,0,0.5)',
-              transition: 'all 0.5s ease',
-              backdropFilter: isCorrect && isAnswered ? 'blur(8px)' : 'none'
-            }}>
-              {(isCorrect && isAnswered) ? question.answerText : question.options[0]}
-            </div>
-            <div className="q-guess-actions" style={{ display: 'flex', gap: '20px', justifyContent: 'center', marginTop: '30px' }}>
-              <button
-                className="btn"
-                onClick={() => handleOptionClick(1)}
-                disabled={!activeTeam || isAnswered || showCorrectAnim || showStealUI}
-                style={{ padding: '15px 35px', fontSize: '1.2rem', background: 'linear-gradient(135deg, #4CAF50, #2E7D32)', color: 'white', border: 'none', borderRadius: '50px', boxShadow: '0 4px 15px rgba(76,175,80,0.3)', cursor: !activeTeam ? 'not-allowed' : 'pointer' }}
-              >
-                ✅ ĐÚNG
-              </button>
-              <button
-                className="btn"
-                onClick={() => handleOptionClick(0)}
-                disabled={!activeTeam || isAnswered || showCorrectAnim || showStealUI}
-                style={{ padding: '15px 35px', fontSize: '1.2rem', background: 'linear-gradient(135deg, #F44336, #C62828)', color: 'white', border: 'none', borderRadius: '50px', boxShadow: '0 4px 15px rgba(244,67,54,0.3)', cursor: !activeTeam ? 'not-allowed' : 'pointer' }}
-              >
-                ❌ SAI
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="q-options" style={{ opacity: activeTeam ? 1 : 0.4, transition: 'opacity 0.3s', pointerEvents: !activeTeam ? 'none' : 'auto' }}>
-            {question.options.map((opt, idx) => {
-              let optClass = 'q-option'
-              if (isAnswered && selectedOption === idx) {
-                optClass += isCorrect ? ' correct' : ' wrong'
-              }
-              if (showCorrectAnim && idx === question.answer) optClass += ' correct highlight'
-              return (
-                <button
-                  key={idx}
-                  className={optClass}
-                  onClick={() => handleOptionClick(idx)}
-                  disabled={!activeTeam || isAnswered || showCorrectAnim || showStealUI}
-                >
-                  <span className="q-opt-label">{optLabels[idx]}</span>
-                  <span className="q-opt-text">{opt}</span>
-                </button>
-              )
-            })}
-          </div>
-        )}
-
-        {/* Reward Preview */}
-        {!isAnswered && (
-          <div className="q-reward-preview">
-            Phần thưởng: <strong>{question.tier} lượt quay thưởng!</strong> 🎰
-          </div>
-        )}
-
-        {/* WRONG OVERLAY / CHOICE */}
-        {reaction && showWrongChoices && (
-          <div className="q-wrong-overlay">
-            <div className="q-wrong-content glass">
-              <span className="q-reaction-emoji">{reaction.emoji}</span>
-              <p className="q-reaction-text">{reaction.text}</p>
-
-              <div className="q-wrong-actions">
-                {hasStar && !isTier3 && (
-                  <button className="btn star-extralife" onClick={handleUseStarExtraLife}>
-                    ⭐ Dùng Ngôi Sao Hy Vọng
-                  </button>
-                )}
-
-                {!isTier3 && (
-                  <button className="btn btn-primary" onClick={handleOpenStealUI}>
-                    🤝 Nhường quyền (Steal)
-                  </button>
-                )}
-
-                <button className="btn btn-secondary" onClick={onNextQuestion}>
-                  ⏭️ Câu tiếp theo
-                </button>
+          <div className="qp-header-center">
+            <span className="qp-qnum">Câu #{questionNumber}</span>
+            {activeTeam && (
+              <div className="qp-team-pill" style={{ borderColor: activeTeam.color, color: activeTeam.color }}>
+                <span className="qp-team-dot" style={{ background: activeTeam.color }} />
+                {activeTeam.name}
+                {hasStar && <span className="qp-star-badge">★</span>}
               </div>
-            </div>
+            )}
           </div>
-        )}
 
-        {/* STEAL MODAL / SELECTOR */}
-        {showStealUI && (
-          <div className="q-steal-overlay">
-            <div className="q-steal-content glass">
-              <h3>🤝 Chọn đội nhường quyền:</h3>
-              <p>Thời gian cho đội mới: <strong>{calculateInitialTime(question.tier, turnCount + 1)}s</strong></p>
-              <div className="q-steal-teams">
-                {teams.filter(t => t.id !== activeTeam.id).map(team => (
-                  <button
-                    key={team.id}
-                    className="btn q-steal-team-btn"
-                    style={{ '--team-color': team.color }}
-                    onClick={() => handleSteal(team)}
-                  >
-                    {team.name}
+          <div className="qp-timer" style={{ '--t-color': timerColor }}>
+            <svg viewBox="0 0 120 120" className="qp-timer-svg">
+              <circle cx="60" cy="60" r="52" className="qp-timer-track" />
+              <circle cx="60" cy="60" r="52" className="qp-timer-fill"
+                style={{ strokeDasharray: CIRC, strokeDashoffset: CIRC * (1 - timerPct / 100) }} />
+            </svg>
+            <span className={`qp-timer-num${timeLeft <= 5 ? ' danger' : ''}`}>{timeLeft}</span>
+          </div>
+        </header>
+
+        {/* ── BODY ── */}
+        <main className="qp-body">
+          {/* Team Selection */}
+          {!activeTeam && (
+            <div className="qp-team-select">
+              <h3 className="qp-team-select-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                Đội nào giành quyền trả lời?
+              </h3>
+              <div className="qp-team-cards">
+                {teams.map(t => (
+                  <button key={t.id} className="qp-team-card" style={{ '--tc': t.color }} onClick={() => handleInitialTeamSelect(t)}>
+                    <span className="qp-tc-dot" style={{ background: t.color }} />
+                    <span className="qp-tc-name">{t.name}</span>
+                    {(teamStars[t.id] ?? 0) > 0 && <span className="qp-tc-star">★</span>}
                   </button>
                 ))}
               </div>
-              <button className="btn btn-secondary mt-10" onClick={() => setShowWrongChoices(true) & setShowStealUI(false)}>
-                Quay lại
+            </div>
+          )}
+
+          {/* Question Card */}
+          <div className="qp-qcard" style={{ '--accent': theme.accent }}>
+            <p className="qp-qtext">{question.question}</p>
+            {question.image && (
+              <div className="qp-qimg-wrap">
+                <img src={question.image} alt="Hình câu hỏi" className="qp-qimg" />
+              </div>
+            )}
+          </div>
+
+          {/* Options */}
+          {question.type === 'guess' ? (
+            <div className="qp-guess" style={{ opacity: activeTeam ? 1 : 0.4, pointerEvents: activeTeam ? 'auto' : 'none' }}>
+              <div className={`qp-guess-display${isCorrect && isAnswered ? ' revealed' : ''}`}>
+                {(isCorrect && isAnswered) ? question.answerText : question.options[0]}
+              </div>
+              <div className="qp-guess-btns">
+                <button className="qp-gbtn qp-gbtn-yes" onClick={() => handleOptionClick(1)}
+                  disabled={!activeTeam || isAnswered || showCorrectAnim || showStealUI}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                  ĐÚNG
+                </button>
+                <button className="qp-gbtn qp-gbtn-no" onClick={() => handleOptionClick(0)}
+                  disabled={!activeTeam || isAnswered || showCorrectAnim || showStealUI}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                  SAI
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="qp-options" style={{ opacity: activeTeam ? 1 : 0.4, pointerEvents: activeTeam ? 'auto' : 'none' }}>
+              {question.options.map((opt, idx) => {
+                let cls = 'qp-opt'
+                if (isAnswered && selectedOption === idx) cls += isCorrect ? ' correct' : ' wrong'
+                if (showCorrectAnim && idx === question.answer) cls += ' correct glow'
+                return (
+                  <button key={idx} className={cls} onClick={() => handleOptionClick(idx)}
+                    disabled={!activeTeam || isAnswered || showCorrectAnim || showStealUI}>
+                    <span className="qp-opt-ltr">{optLabels[idx]}</span>
+                    <span className="qp-opt-txt">{opt}</span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Reward */}
+          {!isAnswered && (
+            <div className="qp-reward" style={{ color: theme.accent }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={theme.accent} strokeWidth="2">
+                <rect x="3" y="8" width="18" height="4" rx="1" /><path d="M12 8v13" /><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" />
+                <path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5" />
+              </svg>
+              Phần thưởng: <strong>{question.tier} lượt quay!</strong>
+            </div>
+          )}
+        </main>
+      </div>
+
+      {/* ── WRONG OVERLAY ── */}
+      {reaction && showWrongChoices && (
+        <div className="qp-overlay">
+          <div className="qp-overlay-card qp-wrong-card">
+            <div className="qp-wrong-icon">✕</div>
+            <p className="qp-wrong-text">{reaction.text}</p>
+            <div className="qp-wrong-actions">
+              {hasStar && !isTier3 && (
+                <button className="qp-action-btn qp-star-btn" onClick={handleUseStarExtraLife}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#FFD700" stroke="#FFD700" strokeWidth="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+                  Dùng Ngôi Sao Hy Vọng
+                </button>
+              )}
+              {!isTier3 && (
+                <button className="qp-action-btn qp-steal-btn" onClick={handleOpenStealUI}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>
+                  Nhường quyền trả lời
+                </button>
+              )}
+              <button className="qp-action-btn qp-skip-btn" onClick={onNextQuestion}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="13 17 18 12 13 7" /><polyline points="6 17 11 12 6 7" /></svg>
+                Câu tiếp theo
               </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* CORRECT OVERLAY */}
-        {/* CORRECT OVERLAY - Only for multiple choice, guess questions show success in-place */}
-        {showCorrectAnim && question.type !== 'guess' && (
-          <div className="q-correct-overlay">
-            <div className="q-correct-content">
-              <span className="q-correct-emoji">🎉</span>
-              <p className="q-correct-text">Chính xác!</p>
-              {question.type === 'guess' && (
-                <p style={{ color: '#4CAF50', fontWeight: '800', fontSize: '1.2rem', marginBottom: '10px' }}>
-                  ĐÁP ÁN: {question.answerText}
-                </p>
-              )}
-              <p className="q-correct-sub"><strong>{activeTeam?.name}</strong> nhận được <strong>{question.tier} lượt quay!</strong></p>
-              {question.type === 'guess' ? (
-                <div style={{ marginTop: '20px', color: 'var(--gold)', fontWeight: '600', fontStyle: 'italic' }}>
-                  ⌛ Vòng quay sẽ mở sau 5 giây...
-                </div>
-              ) : (
-                <button className="btn btn-gold q-correct-btn" onClick={() => onCorrect(question.tier, activeTeam.id)}>
-                  🎰 Bắt đầu quay ngay!
+      {/* ── STEAL OVERLAY ── */}
+      {showStealUI && (
+        <div className="qp-overlay">
+          <div className="qp-overlay-card qp-steal-card">
+            <h3 className="qp-steal-title">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>
+              Chọn đội nhường quyền
+            </h3>
+            <p className="qp-steal-sub">Thời gian: <strong>{calculateInitialTime(question.tier, turnCount + 1)}s</strong></p>
+            <div className="qp-steal-teams">
+              {teams.filter(t => t.id !== activeTeam.id).map(team => (
+                <button key={team.id} className="qp-steal-team" style={{ '--tc': team.color }} onClick={() => handleSteal(team)}>
+                  <span className="qp-tc-dot" style={{ background: team.color }} />
+                  {team.name}
+                </button>
+              ))}
+            </div>
+            <button className="qp-action-btn qp-back-btn" onClick={() => { setShowWrongChoices(true); setShowStealUI(false) }}>
+              ← Quay lại
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── CORRECT OVERLAY ── */}
+      {showCorrectAnim && question.type !== 'guess' && (
+        <div className="qp-overlay qp-correct-overlay">
+          <div className="qp-overlay-card qp-correct-card">
+            <div className="qp-correct-icon">
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+            </div>
+            <h2 className="qp-correct-title">Chính xác!</h2>
+            <p className="qp-correct-sub"><strong>{activeTeam?.name}</strong> nhận <strong>{question.tier} lượt quay!</strong></p>
+            <button className="qp-action-btn qp-spin-btn" onClick={() => onCorrect(question.tier, activeTeam.id)}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M16 12l-4-4v8l4-4z" /></svg>
+              Bắt đầu quay ngay!
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── TIMEOUT OVERLAY ── */}
+      {timeLeft === 0 && !showCorrectAnim && !isAnswered && (
+        <div className="qp-overlay">
+          <div className="qp-overlay-card qp-timeout-card">
+            <div className="qp-timeout-icon">
+              <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#FFD700" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+            </div>
+            <h2 className="qp-timeout-title">Hết giờ!</h2>
+            <div className="qp-wrong-actions">
+              {!isTier3 && (
+                <button className="qp-action-btn qp-steal-btn" onClick={handleOpenStealUI}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>
+                  Nhường quyền trả lời
                 </button>
               )}
+              <button className="qp-action-btn qp-skip-btn" onClick={onNextQuestion}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="13 17 18 12 13 7" /><polyline points="6 17 11 12 6 7" /></svg>
+                Câu tiếp theo
+              </button>
             </div>
           </div>
-        )}
-
-        {/* TIMEOUT */}
-        {timeLeft === 0 && !showCorrectAnim && !isAnswered && (
-          <div className="q-timeout-overlay">
-            <div className="q-timeout-content glass">
-              <span className="q-timeout-emoji">⏰</span>
-              <p className="q-timeout-text">Hết giờ rồi!</p>
-              <div className="q-wrong-actions">
-                {!isTier3 && (
-                  <button className="btn btn-primary" onClick={handleOpenStealUI}>
-                    🤝 Nhường quyền (Steal)
-                  </button>
-                )}
-                <button className="btn btn-secondary" onClick={onNextQuestion}>⏭️ Câu tiếp theo</button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
