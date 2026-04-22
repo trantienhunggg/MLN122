@@ -49,9 +49,9 @@ function playStarSound(ctx) {
 }
 
 const TIER_THEMES = {
-  1: { bg: 'linear-gradient(135deg, #0a1628, #132d50, #0d2035)', accent: '#4FC3F7', glow: 'rgba(79,195,247,0.25)' },
-  2: { bg: 'linear-gradient(135deg, #1f1a08, #352a0c, #1a1505)', accent: '#FFD54F', glow: 'rgba(255,213,79,0.25)' },
-  3: { bg: 'linear-gradient(135deg, #200808, #3a0e0e, #1a0505)', accent: '#FF5252', glow: 'rgba(255,82,82,0.25)' },
+  1: { bg: 'linear-gradient(135deg, #dff6ff, #b3e5fc, #e0f7fa)', accent: '#0288d1', glow: 'rgba(2,136,209,0.18)' },
+  2: { bg: 'linear-gradient(135deg, #fff9e6, #ffe0a0, #fff3d6)', accent: '#e65100', glow: 'rgba(245,127,23,0.18)' },
+  3: { bg: 'linear-gradient(135deg, #ffe8ec, #ffb8c6, #ffe0e6)', accent: '#c62828', glow: 'rgba(198,40,40,0.18)' },
 }
 
 export default function QuestionModal({

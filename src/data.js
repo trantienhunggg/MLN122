@@ -5,7 +5,7 @@ export const KIMBAP_INGREDIENTS = [
   { name: 'Cà rốt + Dưa leo', emoji: '🥕', color: '#FF6B35', rarity: 'common' },
   { name: 'Trứng', emoji: '🍳', color: '#FFF176', rarity: 'common' },
   { name: 'Xúc xích', emoji: '🌭', color: '#BF360C', rarity: 'uncommon' },
-  { name: 'Dầu mè + mè rang', emoji: '🫒', color: '#8BC34A', rarity: 'common' },
+  { name: 'Dầu mè + mè rang', emoji: '💧', color: '#8BC34A', rarity: 'common' },
   { name: 'Thanh cua', emoji: '🦀', color: '#FF5252', rarity: 'uncommon' },
 ]
 
