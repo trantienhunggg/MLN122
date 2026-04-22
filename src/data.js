@@ -1,17 +1,12 @@
 // ===== KIMBAP INGREDIENTS (Items for spinner) =====
 export const KIMBAP_INGREDIENTS = [
-  { name: 'Cơm cuộn', emoji: '🍙', color: '#FFD700', rarity: 'common' },
-  { name: 'Rong biển', emoji: '🌿', color: '#2E8B57', rarity: 'common' },
-  { name: 'Cà rốt', emoji: '🥕', color: '#FF6B35', rarity: 'common' },
-  { name: 'Dưa leo', emoji: '🥒', color: '#4CAF50', rarity: 'common' },
-  { name: 'Trứng', emoji: '🥚', color: '#FFF176', rarity: 'common' },
-  { name: 'Thanh cua', emoji: '🦀', color: '#FF5252', rarity: 'uncommon' },
-  { name: 'Kim chi', emoji: '🌶️', color: '#E53935', rarity: 'uncommon' },
-  { name: 'Phô mai', emoji: '🧀', color: '#FFCA28', rarity: 'uncommon' },
+  { name: 'Cơm', emoji: '🍚', color: '#FFD700', rarity: 'common' },
+  { name: 'Lá kim', emoji: '🌿', color: '#2E8B57', rarity: 'common' },
+  { name: 'Cà rốt + Dưa leo', emoji: '🥕', color: '#FF6B35', rarity: 'common' },
+  { name: 'Trứng', emoji: '🍳', color: '#FFF176', rarity: 'common' },
   { name: 'Xúc xích', emoji: '🌭', color: '#BF360C', rarity: 'uncommon' },
-  { name: 'Thịt bò', emoji: '🥩', color: '#8D6E63', rarity: 'rare' },
-  { name: 'Vừng', emoji: '🫙', color: '#F5DEB3', rarity: 'common' },
-  { name: 'Dầu mè', emoji: '🫒', color: '#8BC34A', rarity: 'common' },
+  { name: 'Dầu mè + mè rang', emoji: '🫒', color: '#8BC34A', rarity: 'common' },
+  { name: 'Thanh cua', emoji: '🦀', color: '#FF5252', rarity: 'uncommon' },
 ]
 
 // ===== TEAM COLORS =====

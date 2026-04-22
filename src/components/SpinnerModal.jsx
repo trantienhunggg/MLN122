@@ -105,20 +105,25 @@ export default function SpinnerModal({ teams, defaultTeamId, teamStars, teamInve
       ctx.fillStyle = seg.color; ctx.fill()
       ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 2; ctx.stroke()
 
-      // Emoji
+      // Emoji (Moved inwards, larger)
       ctx.save(); ctx.translate(cx, cy); ctx.rotate(sa + segAngle / 2)
-      ctx.translate(r * 0.65, 0); ctx.rotate(Math.PI / 2)
-      ctx.font = `${sz * 0.07}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.translate(r * 0.35, 0); ctx.rotate(Math.PI / 2)
+      ctx.font = `${sz * 0.09}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
       ctx.fillText(seg.emoji, 0, 0); ctx.restore()
 
-      // Text
+      // Text (Moved outwards, larger, better word wrap)
       ctx.save(); ctx.translate(cx, cy); ctx.rotate(sa + segAngle / 2)
-      ctx.translate(r * 0.33, 0); ctx.rotate(Math.PI / 2)
-      ctx.font = `bold ${sz * 0.038}px 'Outfit',sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-      ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 4
+      ctx.translate(r * 0.75, 0); ctx.rotate(Math.PI / 2)
+      ctx.font = `bold ${sz * 0.045}px 'Outfit',sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 5
       const words = seg.name.split(' ')
-      if (words.length === 1) ctx.fillText(seg.name, 0, 0)
-      else { ctx.fillText(words[0], 0, -sz * 0.02); ctx.fillText(words.slice(1).join(' '), 0, sz * 0.02) }
+      if (words.length <= 2 && seg.name.length <= 11) {
+        ctx.fillText(seg.name, 0, 0)
+      } else {
+        const mid = Math.ceil(words.length / 2)
+        ctx.fillText(words.slice(0, mid).join(' '), 0, -sz * 0.025)
+        ctx.fillText(words.slice(mid).join(' '), 0, sz * 0.025)
+      }
       ctx.restore()
     })
 
