@@ -31,6 +31,20 @@ export default function SpinnerModal({ teams, defaultTeamId, teamStars, teamInve
   const [claimTeamId, setClaimTeamId] = useState(defaultTeamId ?? teams[0]?.id)
   const [showStarPicker, setShowStarPicker] = useState(false)
   const [starPickUsed, setStarPickUsed] = useState(false)
+  const [wheelSize, setWheelSize] = useState(650)
+
+  // Handle dynamic wheel resize for drawing logic
+  useEffect(() => {
+    const handleResize = () => {
+      const h = window.innerHeight
+      if (h < 700) setWheelSize(420)
+      else if (h < 850) setWheelSize(520)
+      else setWheelSize(650)
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   // Calculate global stock of each ingredient
   const getAvailableIngredients = () => {
@@ -86,7 +100,7 @@ export default function SpinnerModal({ teams, defaultTeamId, teamStars, teamInve
   const drawWheel = useCallback((rot) => {
     const cv = canvasRef.current; if (!cv) return
     const ctx = cv.getContext('2d')
-    const sz = cv.width, cx = sz / 2, cy = sz / 2, r = sz / 2 - 6
+    const sz = wheelSize, cx = sz / 2, cy = sz / 2, r = sz / 2 - 6
     ctx.clearRect(0, 0, sz, sz)
 
     if (N === 0) {
@@ -130,8 +144,8 @@ export default function SpinnerModal({ teams, defaultTeamId, teamStars, teamInve
     // Center decor
     ctx.beginPath(); ctx.arc(cx, cy, sz * .08, 0, 2 * Math.PI)
     const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, sz * .08)
-    cg.addColorStop(0, '#1a3a5c'); cg.addColorStop(1, '#0a1628')
-    ctx.fillStyle = cg; ctx.fill(); ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 3; ctx.stroke()
+    cg.addColorStop(0, '#ffffff'); cg.addColorStop(1, '#e2f5ff')
+    ctx.fillStyle = cg; ctx.fill(); ctx.strokeStyle = 'var(--blue-accent)'; ctx.lineWidth = 3; ctx.stroke()
   }, [N, segAngle, segments])
 
   useEffect(() => {
@@ -166,10 +180,11 @@ export default function SpinnerModal({ teams, defaultTeamId, teamStars, teamInve
         animRef.current = requestAnimationFrame(animate)
       } else {
         setIsSpinning(false)
-        const finalRot = currentRot % (2 * Math.PI)
-        const totalRot = (2 * Math.PI) - (finalRot < 0 ? finalRot + 2 * Math.PI : finalRot)
-        const shiftedRot = (totalRot + Math.PI / 2) % (2 * Math.PI)
-        const winIdx = Math.floor(shiftedRot / segAngle) % N
+        const netRotation = currentRot % (2 * Math.PI)
+        const pointerAngle = -Math.PI / 2 // 12 o'clock
+        let angleAtPointer = (pointerAngle - netRotation) % (2 * Math.PI)
+        if (angleAtPointer < 0) angleAtPointer += 2 * Math.PI
+        const winIdx = Math.floor(angleAtPointer / segAngle) % N
         setWinItem(segments[winIdx])
       }
     }
@@ -227,7 +242,7 @@ export default function SpinnerModal({ teams, defaultTeamId, teamStars, teamInve
 
         <div className="sm-wheel-area">
           <div className="sm-wheel-wrapper large">
-            <canvas ref={canvasRef} className={`sm-canvas${isSpinning ? ' spinning' : ''}`} width={550} height={550} />
+            <canvas ref={canvasRef} className={`sm-canvas${isSpinning ? ' spinning' : ''}`} width={wheelSize} height={wheelSize} />
             <div className="sm-pointer" />
           </div>
         </div>
@@ -252,7 +267,7 @@ export default function SpinnerModal({ teams, defaultTeamId, teamStars, teamInve
                 onClick={handleRegularClaim}
                 disabled={isClaimed}
               >
-                {isClaimed ? 'ĐANG NHẬN...' : `XÁC NHẬN NHẬN ${winItem.name}`}
+                {isClaimed ? 'ĐANG NHẬN...' : `NHẬN: ${winItem.name}`}
               </button>
               {spinsRemaining > 1 && !isClaimed && (
                 <p className="sm-next-spin-hint">Sau đó bạn sẽ còn {spinsRemaining - 1} lượt quay tiếp theo!</p>

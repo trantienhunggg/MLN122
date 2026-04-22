@@ -75,7 +75,7 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
     if (available.length === 0) return
 
     setIsRandomizing(true)
-    const duration = 3000
+    const duration = 3000 // Total 4 seconds
     const startTime = Date.now()
 
     const shuffle = () => {
@@ -83,12 +83,12 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
       const progress = elapsed / duration
 
       if (progress < 1) {
-        // "Popping" jump to any random number
         const rand = Math.floor(Math.random() * 30) + 1
         setRandomHighlight(rand)
         playShuffleSound()
 
-        const delay = 40 + (Math.pow(progress, 3) * 160)
+        // Higher floor delay (180ms) makes every jump distinct
+        const delay = 180 + (Math.pow(progress, 2) * 500)
         setTimeout(shuffle, delay)
       } else {
         const final = available[Math.floor(Math.random() * available.length)]
@@ -98,7 +98,7 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
           setIsRandomizing(false)
           setRandomHighlight(null)
           handleSelectNumber(final)
-        }, 700)
+        }, 1200) // Clear pause on the result
       }
     }
     shuffle()
@@ -192,7 +192,7 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
                 onClick={handleRandomSelect}
                 disabled={isRandomizing}
               >
-                🎲 Chọn câu hỏi ngẫu nhiên
+                🎲
               </button>
             </div>
           </header>
@@ -233,7 +233,7 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
                     {items.map(([name, count]) => {
                       const ing = KIMBAP_INGREDIENTS.find(i => i.name === name)
                       return (
-                        <div key={name} className="ingredient-row">
+                        <div key={`${name}-${count}`} className="ingredient-row item-bounce-in">
                           <span className="ing-label">
                             <span>{ing?.emoji}</span>
                             <span>{name}</span>

@@ -50,10 +50,10 @@ export default function TeamSetup({ onStart }) {
 
         <div className="team-inputs">
           {teamNames.map((name, idx) => (
-            <div key={idx} className="team-input-row">
+            <div key={idx} className="team-input-row item-bounce-in">
               <div
                 className="team-badge"
-                style={{ background: TEAM_COLORS[idx % TEAM_COLORS.length], color: '#07101f' }}
+                style={{ background: TEAM_COLORS[idx % TEAM_COLORS.length], color: 'rgba(0, 0, 0, 0.7)' }}
               >
                 {idx + 1}
               </div>

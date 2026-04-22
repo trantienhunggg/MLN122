@@ -16,15 +16,15 @@ function playWrongSound(ctx) {
 }
 function playCorrectSound(ctx) {
   if (!ctx) return
-  ;[523, 659, 784, 1047].forEach((freq, i) => {
-    const osc = ctx.createOscillator(), gain = ctx.createGain()
-    osc.connect(gain); gain.connect(ctx.destination)
-    osc.frequency.value = freq; osc.type = 'sine'
-    const t = ctx.currentTime + i * 0.12
-    gain.gain.setValueAtTime(0.25, t)
-    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.25)
-    osc.start(t); osc.stop(t + 0.25)
-  })
+    ;[523, 659, 784, 1047].forEach((freq, i) => {
+      const osc = ctx.createOscillator(), gain = ctx.createGain()
+      osc.connect(gain); gain.connect(ctx.destination)
+      osc.frequency.value = freq; osc.type = 'sine'
+      const t = ctx.currentTime + i * 0.12
+      gain.gain.setValueAtTime(0.25, t)
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.25)
+      osc.start(t); osc.stop(t + 0.25)
+    })
 }
 function playTickSound(ctx) {
   if (!ctx) return
@@ -37,15 +37,15 @@ function playTickSound(ctx) {
 }
 function playStarSound(ctx) {
   if (!ctx) return
-  ;[800, 1000, 1200, 1600].forEach((freq, i) => {
-    const osc = ctx.createOscillator(), gain = ctx.createGain()
-    osc.connect(gain); gain.connect(ctx.destination)
-    osc.frequency.value = freq; osc.type = 'triangle'
-    const t = ctx.currentTime + i * 0.08
-    gain.gain.setValueAtTime(0.2, t)
-    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2)
-    osc.start(t); osc.stop(t + 0.2)
-  })
+    ;[800, 1000, 1200, 1600].forEach((freq, i) => {
+      const osc = ctx.createOscillator(), gain = ctx.createGain()
+      osc.connect(gain); gain.connect(ctx.destination)
+      osc.frequency.value = freq; osc.type = 'triangle'
+      const t = ctx.currentTime + i * 0.08
+      gain.gain.setValueAtTime(0.2, t)
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2)
+      osc.start(t); osc.stop(t + 0.2)
+    })
 }
 
 const TIMER_SECONDS = 20
@@ -60,7 +60,7 @@ export default function QuestionModal({
   const [isAnswered, setIsAnswered] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
   const [reaction, setReaction] = useState(null)
-  const [showWrongChoices, setShowWrongChoices] = useState(false) 
+  const [showWrongChoices, setShowWrongChoices] = useState(false)
   const [showStealUI, setShowStealUI] = useState(false)
   const [timeLeft, setTimeLeft] = useState(0)
   const [initialTime, setInitialTime] = useState(0)
@@ -108,6 +108,16 @@ export default function QuestionModal({
     }, 1000)
     return () => clearInterval(timerRef.current)
   }, [timerActive])
+
+  // Auto-transition for Guess questions
+  useEffect(() => {
+    if (isCorrect && question.type === 'guess') {
+      const timer = setTimeout(() => {
+        onCorrect(question.tier, activeTeam?.id)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [isCorrect, question.type, question.tier, activeTeam, onCorrect])
 
   const hasStar = !starUsedOnThisQuestion && activeTeam && (teamStars[activeTeam.id] ?? 0) > 0
   const isTier3 = question.tier === 3
@@ -178,7 +188,7 @@ export default function QuestionModal({
     <div className="q-modal-backdrop">
       {/* Background Music Logic */}
       <audio ref={qBgmRef} src="/bgm-question.mp3" autoPlay loop />
-      
+
       <div className="q-modal glass tiered-modal">
         {/* Tier Indicator */}
         <div className={`q-tier-badge tier-${question.tier}`}>
@@ -211,7 +221,7 @@ export default function QuestionModal({
         <div className="q-question-text">{question.question}</div>
         {question.image && (
           <div style={{ textAlign: 'center', marginBottom: '15px' }}>
-            <img src={question.image} alt="Question Graphic" style={{ maxWidth: '100%', maxHeight: '40vh', borderRadius: '12px', objectFit: 'contain', filter: 'drop-shadow(0 4px 15px rgba(0,0,0,0.5))' }} />
+            <img src={question.image} alt="Question Graphic" style={{ maxWidth: '100%', maxHeight: '30vh', borderRadius: '12px', objectFit: 'contain', filter: 'drop-shadow(0 4px 15px rgba(0,0,0,0.2))' }} />
           </div>
         )}
 
@@ -222,10 +232,10 @@ export default function QuestionModal({
             <h3 style={{ marginBottom: '15px', fontSize: '1.2rem', color: '#FFD700', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>Đội nào giành quyền trả lời?</h3>
             <div className="sm-team-list" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
               {teams.map(t => (
-                <button 
-                  key={t.id} 
-                  className="btn" 
-                  style={{ background: t.color, color: 'white', padding: '8px 16px', fontSize: '1rem', borderRadius: '50px', boxShadow: '0 4px 15px rgba(0,0,0,0.3)', border: '2px solid rgba(255,255,255,0.4)', cursor: 'pointer' }} 
+                <button
+                  key={t.id}
+                  className="btn"
+                  style={{ background: t.color, color: 'white', padding: '8px 16px', fontSize: '1rem', borderRadius: '50px', boxShadow: '0 4px 15px rgba(0,0,0,0.3)', border: '2px solid rgba(255,255,255,0.4)', cursor: 'pointer' }}
                   onClick={() => handleInitialTeamSelect(t)}
                 >
                   {t.name}
@@ -237,20 +247,34 @@ export default function QuestionModal({
 
         {question.type === 'guess' ? (
           <div className="q-guess-area" style={{ opacity: activeTeam ? 1 : 0.6, transition: 'opacity 0.3s' }}>
-            <div className="q-guess-word" style={{ fontSize: '2.5rem', letterSpacing: '8px', textAlign: 'center', margin: '20px 0', fontWeight: '800', color: '#FFD700', textShadow: '0 4px 15px rgba(255,215,0,0.4)', padding: '20px', background: 'rgba(0,0,0,0.3)', borderRadius: '15px', border: '2px dashed rgba(255,215,0,0.5)' }}>
-              {question.options[0]}
+            <div className="q-guess-word" style={{
+              fontSize: '2.5rem',
+              letterSpacing: '8px',
+              textAlign: 'center',
+              margin: '20px 0',
+              fontWeight: '800',
+              color: isCorrect && isAnswered ? '#166534' : '#FFD700',
+              textShadow: isCorrect && isAnswered ? 'none' : '0 4px 15px rgba(255,215,0,0.4)',
+              padding: '20px',
+              background: isCorrect && isAnswered ? 'rgba(117, 213, 240, 0.6)' : 'rgba(0,0,0,0.3)',
+              borderRadius: '15px',
+              border: isCorrect && isAnswered ? '2px solid rgba(117, 213, 240, 1)' : '2px dashed rgba(255,215,0,0.5)',
+              transition: 'all 0.5s ease',
+              backdropFilter: isCorrect && isAnswered ? 'blur(8px)' : 'none'
+            }}>
+              {(isCorrect && isAnswered) ? question.answerText : question.options[0]}
             </div>
             <div className="q-guess-actions" style={{ display: 'flex', gap: '20px', justifyContent: 'center', marginTop: '30px' }}>
-              <button 
-                className="btn" 
+              <button
+                className="btn"
                 onClick={() => handleOptionClick(1)}
                 disabled={!activeTeam || isAnswered || showCorrectAnim || showStealUI}
                 style={{ padding: '15px 35px', fontSize: '1.2rem', background: 'linear-gradient(135deg, #4CAF50, #2E7D32)', color: 'white', border: 'none', borderRadius: '50px', boxShadow: '0 4px 15px rgba(76,175,80,0.3)', cursor: !activeTeam ? 'not-allowed' : 'pointer' }}
               >
                 ✅ ĐÚNG
               </button>
-              <button 
-                className="btn" 
+              <button
+                className="btn"
                 onClick={() => handleOptionClick(0)}
                 disabled={!activeTeam || isAnswered || showCorrectAnim || showStealUI}
                 style={{ padding: '15px 35px', fontSize: '1.2rem', background: 'linear-gradient(135deg, #F44336, #C62828)', color: 'white', border: 'none', borderRadius: '50px', boxShadow: '0 4px 15px rgba(244,67,54,0.3)', cursor: !activeTeam ? 'not-allowed' : 'pointer' }}
@@ -295,14 +319,14 @@ export default function QuestionModal({
             <div className="q-wrong-content glass">
               <span className="q-reaction-emoji">{reaction.emoji}</span>
               <p className="q-reaction-text">{reaction.text}</p>
-              
+
               <div className="q-wrong-actions">
                 {hasStar && !isTier3 && (
                   <button className="btn star-extralife" onClick={handleUseStarExtraLife}>
                     ⭐ Dùng Ngôi Sao Hy Vọng
                   </button>
                 )}
-                
+
                 {!isTier3 && (
                   <button className="btn btn-primary" onClick={handleOpenStealUI}>
                     🤝 Nhường quyền (Steal)
@@ -325,8 +349,8 @@ export default function QuestionModal({
               <p>Thời gian cho đội mới: <strong>{calculateInitialTime(question.tier, turnCount + 1)}s</strong></p>
               <div className="q-steal-teams">
                 {teams.filter(t => t.id !== activeTeam.id).map(team => (
-                  <button 
-                    key={team.id} 
+                  <button
+                    key={team.id}
                     className="btn q-steal-team-btn"
                     style={{ '--team-color': team.color }}
                     onClick={() => handleSteal(team)}
@@ -343,15 +367,27 @@ export default function QuestionModal({
         )}
 
         {/* CORRECT OVERLAY */}
-        {showCorrectAnim && (
+        {/* CORRECT OVERLAY - Only for multiple choice, guess questions show success in-place */}
+        {showCorrectAnim && question.type !== 'guess' && (
           <div className="q-correct-overlay">
             <div className="q-correct-content">
               <span className="q-correct-emoji">🎉</span>
               <p className="q-correct-text">Chính xác!</p>
+              {question.type === 'guess' && (
+                <p style={{ color: '#4CAF50', fontWeight: '800', fontSize: '1.2rem', marginBottom: '10px' }}>
+                  ĐÁP ÁN: {question.answerText}
+                </p>
+              )}
               <p className="q-correct-sub"><strong>{activeTeam?.name}</strong> nhận được <strong>{question.tier} lượt quay!</strong></p>
-              <button className="btn btn-gold q-correct-btn" onClick={() => onCorrect(question.tier, activeTeam.id)}>
-                🎰 Bắt đầu quay ngay!
-              </button>
+              {question.type === 'guess' ? (
+                <div style={{ marginTop: '20px', color: 'var(--gold)', fontWeight: '600', fontStyle: 'italic' }}>
+                  ⌛ Vòng quay sẽ mở sau 5 giây...
+                </div>
+              ) : (
+                <button className="btn btn-gold q-correct-btn" onClick={() => onCorrect(question.tier, activeTeam.id)}>
+                  🎰 Bắt đầu quay ngay!
+                </button>
+              )}
             </div>
           </div>
         )}

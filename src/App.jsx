@@ -11,25 +11,25 @@ const TEAM_COLORS = [
 
 function App() {
   // --- ANTI-CHEAT: Disable F12, Right-Click, and Ctrl+Shift+I ---
-  useEffect(() => {
-    const handleContextMenu = e => e.preventDefault()
-    const handleKeyDown = e => {
-      if (
-        e.key === 'F12' || 
-        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
-        (e.ctrlKey && (e.key === 'U' || e.key === 'u'))
-      ) {
-        e.preventDefault()
-      }
-    }
-    document.addEventListener('contextmenu', handleContextMenu)
-    document.addEventListener('keydown', handleKeyDown)
-    
-    return () => {
-      document.removeEventListener('contextmenu', handleContextMenu)
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [])
+  // useEffect(() => {
+  //   const handleContextMenu = e => e.preventDefault()
+  //   const handleKeyDown = e => {
+  //     if (
+  //       e.key === 'F12' || 
+  //       (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+  //       (e.ctrlKey && (e.key === 'U' || e.key === 'u'))
+  //     ) {
+  //       e.preventDefault()
+  //     }
+  //   }
+  //   document.addEventListener('contextmenu', handleContextMenu)
+  //   document.addEventListener('keydown', handleKeyDown)
+
+  //   return () => {
+  //     document.removeEventListener('contextmenu', handleContextMenu)
+  //     document.removeEventListener('keydown', handleKeyDown)
+  //   }
+  // }, [])
 
   const [phase, setPhase] = useState('setup')
   const [teams, setTeams] = useState([])
@@ -93,28 +93,30 @@ function App() {
 
   return (
     <div className="app-root">
-      {phase === 'setup' && (
-        <TeamSetup onStart={handleStartGame} />
-      )}
-      {phase === 'game' && (
-        <GameController
-          teams={teams}
-          teamInventories={teamInventories}
-          teamStars={teamStars}
-          onAddIngredient={handleAddIngredient}
-          onUseStarForExtraLife={handleUseStarForExtraLife}
-          onUseStarForItem={handleUseStarForItem}
-          onEndGame={handleEndGame}
-        />
-      )}
-      {phase === 'result' && (
-        <ResultBoard
-          teams={teams}
-          teamInventories={teamInventories}
-          teamStars={teamStars}
-          onRestart={handleRestart}
-        />
-      )}
+      <div key={phase} className="scene-fade-in" style={{ height: '100%', width: '100%' }}>
+        {phase === 'setup' && (
+          <TeamSetup onStart={handleStartGame} />
+        )}
+        {phase === 'game' && (
+          <GameController
+            teams={teams}
+            teamInventories={teamInventories}
+            teamStars={teamStars}
+            onAddIngredient={handleAddIngredient}
+            onUseStarForExtraLife={handleUseStarForExtraLife}
+            onUseStarForItem={handleUseStarForItem}
+            onEndGame={handleEndGame}
+          />
+        )}
+        {phase === 'result' && (
+          <ResultBoard
+            teams={teams}
+            teamInventories={teamInventories}
+            teamStars={teamStars}
+            onRestart={handleRestart}
+          />
+        )}
+      </div>
     </div>
   )
 }

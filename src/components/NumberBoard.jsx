@@ -42,9 +42,10 @@ export default function NumberBoard({ usedNumbers, onSelectNumber, currentTeam, 
             return (
               <button
                 key={num}
-                className={`num-cell puzzle-tile${isUsed ? ' revealed' : ''}${isHighlighted ? ' highlighted' : ''}`}
+                className={`num-cell puzzle-tile stagger-in${isUsed ? ' revealed' : ''}${isHighlighted ? ' highlighted' : ''}`}
                 onClick={() => !isUsed && onSelectNumber(num)}
                 disabled={isUsed}
+                style={{ animationDelay: `${(num % 10) * 0.05 + Math.floor(num / 10) * 0.1}s` }}
               >
                 {!isUsed && <span className="num-label">{num}</span>}
               </button>

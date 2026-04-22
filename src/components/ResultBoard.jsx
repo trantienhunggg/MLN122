@@ -1,29 +1,30 @@
 import { KIMBAP_INGREDIENTS } from '../data'
 
 const thStyle = {
-  padding: '10px 16px',
+  padding: '12px 16px',
   textAlign: 'left',
   fontSize: '0.8rem',
-  color: 'rgba(255,255,255,0.45)',
-  fontWeight: 600,
+  color: 'rgba(0,0,0,0.4)',
+  fontWeight: 700,
   textTransform: 'uppercase',
-  letterSpacing: '0.5px',
-  borderBottom: '1px solid rgba(255,255,255,0.08)',
+  letterSpacing: '0.8px',
+  borderBottom: '1px solid rgba(0,0,0,0.05)',
 }
 
 const tdStyle = {
-  padding: '10px 16px',
-  fontSize: '0.88rem',
-  color: 'rgba(255,255,255,0.8)',
-  background: 'rgba(255,255,255,0.025)',
-  borderRadius: 8,
+  padding: '12px 16px',
+  fontSize: '0.9rem',
+  color: '#2d3748',
+  background: 'rgba(0,0,0,0.015)',
+  borderRadius: 10,
 }
 
 export default function ResultBoard({ teams, teamInventories, teamStars = {}, onRestart }) {
   const teamTotals = teams.map(team => {
     const inv = teamInventories[team.id] || {}
     const total = Object.values(inv).reduce((s, v) => s + v, 0)
-    return { ...team, total }
+    const starCount = teamStars[team.id] ?? 0
+    return { ...team, total, starCount }
   }).sort((a, b) => b.total - a.total)
 
   const rankEmoji = (rank) => {
@@ -46,61 +47,54 @@ export default function ResultBoard({ teams, teamInventories, teamStars = {}, on
         <p>Nguyên liệu làm Kimbap mỗi nhóm nhận được!</p>
       </div>
 
-      {/* Podium summary */}
+      {/* Rankings Summary */}
       <div className="result-podium">
         {teamTotals.map((team, rank) => (
           <div
             key={team.id}
-            className="result-podium-item"
+            className={`result-podium-item ${rank === 0 ? 'winner-bright' : ''}`}
             style={{
               borderColor: team.color,
-              boxShadow: rank === 0 ? `0 0 20px ${team.color}44` : 'none',
             }}
           >
-            <span style={{ fontSize: '1.2rem' }}>{rankEmoji(rank)}</span>
-            <span style={{ fontWeight: 800, color: team.color }}>{team.name}</span>
-            {(teamStars[team.id] ?? 0) > 0 && (
-              <span title="Chưa dùng ngôi sao!">⭐</span>
-            )}
-            <span style={{
-              background: 'rgba(255,215,0,0.12)',
-              border: '1px solid rgba(255,215,0,0.28)',
-              borderRadius: 20,
-              padding: '2px 10px',
-              color: '#FFD700',
-              fontWeight: 700,
-              fontSize: '0.82rem',
-            }}>
-              {team.total} nguyên liệu
+            <span style={{ fontSize: '1.4rem' }}>{rankEmoji(rank)}</span>
+            <span style={{ fontWeight: 800, color: team.color, fontSize: rank === 0 ? '1.1rem' : '0.9rem' }}>
+              {team.name}
+              {rank === 0 && <span className="winner-label">QUÁN QUÂN 👑</span>}
+            </span>
+            <span className="podium-total">
+              {team.total} <small>món</small>
             </span>
           </div>
         ))}
       </div>
 
-      {/* Detail cards */}
       <div className="result-grid">
-        {teams.map(team => {
+        {teamTotals.map((team, rank) => {
           const inv = teamInventories[team.id] || {}
           const items = Object.entries(inv)
-          const total = items.reduce((s, [, v]) => s + v, 0)
           return (
             <div
               key={team.id}
-              className="glass result-card"
+              className={`glass result-card ${rank === 0 ? 'winner-card' : ''}`}
               style={{ '--team-color': team.color, color: team.color }}
             >
+              <div className="result-rank-badge">{rankEmoji(rank)}</div>
               <div className="result-card-header">
                 <div className="result-team-avatar" style={{ background: team.color }}>
                   {team.name.charAt(0).toUpperCase()}
                 </div>
-                <h2>{team.name}</h2>
-                {(teamStars[team.id] ?? 0) > 0 ? (
-                  <span title="Chưa dùng ngôi sao" style={{ fontSize: '1.1rem', marginLeft: 2 }}>⭐</span>
+                <div>
+                  <h2 style={{ fontSize: rank === 0 ? '1.4rem' : '1.1rem' }}>{team.name}</h2>
+                  {rank === 0 && <div className="winner-tag">CHAMPION</div>}
+                </div>
+                {team.starCount > 0 ? (
+                  <span title="Chưa dùng ngôi sao" style={{ fontSize: '1.2rem', marginLeft: 'auto' }}>⭐</span>
                 ) : (
-                  <span title="Đã dùng ngôi sao" style={{ fontSize: '1rem', opacity: 0.4, marginLeft: 2 }}>🌑</span>
+                  <span title="Đã dùng ngôi sao" style={{ fontSize: '1rem', opacity: 0.4, marginLeft: 'auto' }}>🌑</span>
                 )}
-                <div className="total-badge">{total} nguyên liệu</div>
               </div>
+              <div className="total-badge-large">{team.total} nguyên liệu</div>
 
               {items.length === 0 ? (
                 <div className="empty-result">Chưa có nguyên liệu nào 😢</div>
@@ -128,7 +122,7 @@ export default function ResultBoard({ teams, teamInventories, teamStars = {}, on
       {/* Full summary table */}
       <div className="result-table-wrap">
         <div className="glass" style={{ padding: 24, overflowX: 'auto' }}>
-          <h2 style={{ marginBottom: 18, fontSize: '1.1rem', color: 'rgba(255,255,255,0.75)' }}>
+          <h2 style={{ marginBottom: 18, fontSize: '1.2rem', fontWeight: 800, color: 'var(--text)' }}>
             📊 Bảng Chi Tiết Tất Cả Nguyên Liệu
           </h2>
           <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 4px' }}>
@@ -158,8 +152,8 @@ export default function ResultBoard({ teams, teamInventories, teamStars = {}, on
                       <td key={idx} style={{
                         ...tdStyle,
                         textAlign: 'center',
-                        fontWeight: v > 0 ? 700 : 400,
-                        color: v > 0 ? teams[idx]?.color : 'rgba(255,255,255,0.18)',
+                        fontWeight: v > 0 ? 800 : 400,
+                        color: v > 0 ? teams[idx]?.color : 'rgba(0,0,0,0.25)',
                       }}>
                         {v > 0 ? `×${v}` : '—'}
                       </td>
