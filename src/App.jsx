@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import TeamSetup from './components/TeamSetup'
 import GameController from './components/GameController'
 import ResultBoard from './components/ResultBoard'
@@ -10,6 +10,27 @@ const TEAM_COLORS = [
 ]
 
 function App() {
+  // --- ANTI-CHEAT: Disable F12, Right-Click, and Ctrl+Shift+I ---
+  useEffect(() => {
+    const handleContextMenu = e => e.preventDefault()
+    const handleKeyDown = e => {
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+        (e.ctrlKey && (e.key === 'U' || e.key === 'u'))
+      ) {
+        e.preventDefault()
+      }
+    }
+    document.addEventListener('contextmenu', handleContextMenu)
+    document.addEventListener('keydown', handleKeyDown)
+    
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [])
+
   const [phase, setPhase] = useState('setup')
   const [teams, setTeams] = useState([])
   const [teamInventories, setTeamInventories] = useState({})
