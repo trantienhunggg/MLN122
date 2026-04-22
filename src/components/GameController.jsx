@@ -14,9 +14,10 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
 
   // Picture Guess feature
   const [showPictureGuess, setShowPictureGuess] = useState(false)
-  const [pgPhase, setPgPhase] = useState('team-select') // 'team-select' | 'confirm' | 'pick-items'
+  const [pgPhase, setPgPhase] = useState('team-select') // 'team-select' | 'confirm' | 'reveal' | 'pick-items'
   const [pgTeam, setPgTeam] = useState(null)
   const [pgPickedItems, setPgPickedItems] = useState([])
+  const [pgResult, setPgResult] = useState(null) // 'correct' | 'wrong'
 
   const selectedTeam = teams.find(t => t.id === selectedTeamId)
 
@@ -196,6 +197,7 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
     setPgPhase('team-select')
     setPgTeam(null)
     setPgPickedItems([])
+    setPgResult(null)
   }
 
   const handlePgSelectTeam = (team) => {
@@ -204,11 +206,21 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
   }
 
   const handlePgCorrect = () => {
-    setPgPhase('pick-items')
+    setPgResult('correct')
+    setPgPhase('reveal')
   }
 
   const handlePgWrong = () => {
-    setShowPictureGuess(false)
+    setPgResult('wrong')
+    setPgPhase('reveal')
+  }
+
+  const handlePgRevealNext = () => {
+    if (pgResult === 'correct') {
+      setPgPhase('pick-items')
+    } else {
+      setShowPictureGuess(false)
+    }
   }
 
   const handlePgPickItem = (ingredient) => {
@@ -382,12 +394,12 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
 
           {pgPhase === 'confirm' && (
             <div className="qp-overlay-card pg-card">
+              <div className="pg-header-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0284c7" strokeWidth="1.5"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="12" r="10"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
               <h2 className="pg-title" style={{ color: pgTeam.color }}>
                 Đội {pgTeam.name} đoán hình
               </h2>
-              <div className="pg-reveal-img-wrap">
-                <img src={PUZZLE_IMAGE_URL} alt="Hình bí ẩn" className="pg-reveal-img" />
-              </div>
               <p className="pg-sub">MC xác nhận: Đội đoán có đúng không?</p>
               <div className="pg-confirm-btns">
                 <button className="qp-action-btn pg-btn-correct" onClick={handlePgCorrect}>
@@ -399,6 +411,26 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
                   Sai rồi!
                 </button>
               </div>
+            </div>
+          )}
+
+          {pgPhase === 'reveal' && (
+            <div className="qp-overlay-card pg-card">
+              <div className={`pg-header-icon ${pgResult === 'correct' ? 'pg-success-icon' : 'pg-wrong-icon'}`}>
+                {pgResult === 'correct'
+                  ? <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  : <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
+              </div>
+              <h2 className="pg-title" style={{ color: pgResult === 'correct' ? '#166534' : '#991b1b' }}>
+                {pgResult === 'correct' ? 'Chính xác! 🎉' : 'Sai rồi! 😢'}
+              </h2>
+              <p className="pg-sub">Đây là bức tranh bí ẩn:</p>
+              <div className="pg-reveal-img-wrap">
+                <img src={PUZZLE_IMAGE_URL} alt="Hình bí ẩn" className="pg-reveal-img" />
+              </div>
+              <button className="qp-action-btn qp-spin-btn" style={{ marginTop: 16 }} onClick={handlePgRevealNext}>
+                {pgResult === 'correct' ? '→ Chọn nguyên liệu' : '← Quay lại'}
+              </button>
             </div>
           )}
 
