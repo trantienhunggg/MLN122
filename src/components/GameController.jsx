@@ -179,10 +179,10 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
       return acc + (teamInventories[t.id]?.[ingredient.name] || 0)
     }, 0)
 
-    if (totalStock >= 5) {
-      alert(`Nguyên liệu "${ingredient.name}" đã hết hàng!`)
-      return
-    }
+    if (totalStock >= 5) return
+
+    const teamCount = teamInventories[teamId]?.[ingredient.name] || 0
+    if (teamCount >= 2) return
 
     onUseStarForItem(teamId, ingredient)
     setActiveQuestion(null)
@@ -227,6 +227,8 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
     // Check global stock
     const globalCount = teams.reduce((acc, t) => acc + (teamInventories[t.id]?.[ingredient.name] || 0), 0)
     if (globalCount >= 5) return
+    const teamCount = teamInventories[pgTeam.id]?.[ingredient.name] || 0
+    if (teamCount >= 2) return // Already has max 2 of this ingredient
     onAddIngredient(pgTeam.id, ingredient)
     setPgPickedItems(prev => [...prev, ingredient.name])
   }
@@ -240,7 +242,7 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
     const teamInv = teamInventories[pgTeam.id] || {}
     return KIMBAP_INGREDIENTS.filter(ing => {
       const teamHas = teamInv[ing.name] || 0
-      if (teamHas > 0) return false // Already has this ingredient
+      if (teamHas >= 2) return false // Already has max 2 of this ingredient
       const globalCount = teams.reduce((acc, t) => acc + (teamInventories[t.id]?.[ing.name] || 0), 0)
       return globalCount < 5 // Still available in stock
     })

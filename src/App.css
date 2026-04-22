@@ -35,7 +35,7 @@ html,
 body {
   height: 100vh;
   margin: 0;
-  font-family: 'Lexend', 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Lexend', sans-serif;
   background: var(--bg);
   color: var(--text);
   overflow: hidden; /* Lock global scroll */
@@ -98,7 +98,7 @@ html {
   padding: 12px 28px;
   border: none;
   border-radius: 50px;
-  font-family: 'Outfit', sans-serif;
+  font-family: inherit;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -316,7 +316,7 @@ html {
   border-radius: 12px;
   padding: 13px 18px;
   color: #1a2a44;
-  font-family: 'Outfit', sans-serif;
+  font-family: inherit;
   font-size: 1rem;
   font-weight: 500;
   transition: all 0.2s;
@@ -630,7 +630,7 @@ html {
   border: none;
   background: var(--cell-color, #4FC3F7);
   color: rgba(255, 255, 255, 0.95);
-  font-family: 'Outfit', sans-serif;
+  font-family: inherit;
   font-size: clamp(0.8rem, 2vw, 1.1rem);
   font-weight: 800;
   cursor: pointer;
@@ -1736,7 +1736,7 @@ html {
   border-radius: 50px;
   border: 2px solid transparent;
   background: rgba(255, 255, 255, 0.05);
-  font-family: 'Outfit', sans-serif;
+  font-family: inherit;
   font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
@@ -1810,7 +1810,7 @@ html {
   font-weight: 700;
   border: none;
   cursor: pointer;
-  font-family: 'Outfit', sans-serif;
+  font-family: inherit;
   transition: all 0.2s;
 }
 
@@ -1896,7 +1896,7 @@ html {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  font-family: 'Outfit', sans-serif;
+  font-family: inherit;
   color: white;
 }
 
@@ -1947,7 +1947,7 @@ html {
   border-radius: 50px;
   border: 2px solid transparent;
   background: rgba(255, 255, 255, 0.04);
-  font-family: 'Outfit', sans-serif;
+  font-family: inherit;
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
@@ -2092,7 +2092,7 @@ html {
   font-weight: 700;
   border: none;
   cursor: pointer;
-  font-family: 'Outfit', sans-serif;
+  font-family: inherit;
   transition: all 0.2s;
 }
 
@@ -2267,8 +2267,8 @@ html {
 }
 
 .sm-wheel-wrapper.large {
-  width: var(--wheel-size, 400px);
-  height: var(--wheel-size, 400px);
+  width: var(--wheel-size, 550px);
+  height: var(--wheel-size, 550px);
   position: relative;
   transition: all 0.3s ease;
   flex-shrink: 0;
@@ -2276,13 +2276,13 @@ html {
 
 @media (max-height: 850px) {
   .sm-wheel-wrapper.large {
-    --wheel-size: 340px;
+    --wheel-size: 450px;
   }
 }
 
 @media (max-height: 700px) {
   .sm-wheel-wrapper.large {
-    --wheel-size: 280px;
+    --wheel-size: 350px;
   }
 }
 
@@ -2457,7 +2457,7 @@ html {
   justify-content: center;
   overflow: hidden;
   animation: fadeIn 0.3s ease;
-  font-family: 'Lexend', 'Inter', system-ui, sans-serif;
+  font-family: 'Lexend', sans-serif;
 }
 
 /* Floating orbs */

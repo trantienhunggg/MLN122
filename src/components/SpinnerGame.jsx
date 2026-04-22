@@ -89,7 +89,7 @@ export default function SpinnerGame({ teams, teamInventories, onAddIngredient, o
       ctx.rotate(startAngle + segAngle / 2)
       ctx.translate(radius * 0.35, 0)
       ctx.rotate(Math.PI / 2)
-      ctx.font = `bold ${size * 0.045}px 'Outfit', sans-serif`
+      ctx.font = `bold ${size * 0.045}px 'Lexend', sans-serif`
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       ctx.fillStyle = 'rgba(255,255,255,0.95)'

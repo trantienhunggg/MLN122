@@ -37,9 +37,9 @@ export default function SpinnerModal({ teams, defaultTeamId, teamStars, teamInve
   useEffect(() => {
     const handleResize = () => {
       const h = window.innerHeight
-      if (h < 700) setWheelSize(280)
-      else if (h < 850) setWheelSize(340)
-      else setWheelSize(400)
+      if (h < 700) setWheelSize(350)
+      else if (h < 850) setWheelSize(450)
+      else setWheelSize(550)
     }
     handleResize()
     window.addEventListener('resize', handleResize)
@@ -56,8 +56,15 @@ export default function SpinnerModal({ teams, defaultTeamId, teamStars, teamInve
       })
     })
 
-    // Filter ingredients that have reached the limit of 5
-    return KIMBAP_INGREDIENTS.filter(ing => (stock[ing.name] || 0) < 5)
+    const claimTeamInv = teamInventories[claimTeamId] || {}
+
+    // Filter ingredients that have reached the limit of 5 globally
+    // AND filter out ingredients that the current team already has 2 of
+    return KIMBAP_INGREDIENTS.filter(ing => {
+      const globalCount = stock[ing.name] || 0
+      const teamCount = claimTeamInv[ing.name] || 0
+      return globalCount < 5 && teamCount < 2
+    })
   }
 
   const segments = getAvailableIngredients()
@@ -128,7 +135,7 @@ export default function SpinnerModal({ teams, defaultTeamId, teamStars, teamInve
       // Text (Moved outwards, larger, better word wrap)
       ctx.save(); ctx.translate(cx, cy); ctx.rotate(sa + segAngle / 2)
       ctx.translate(r * 0.75, 0); ctx.rotate(Math.PI / 2)
-      ctx.font = `bold ${sz * 0.045}px 'Outfit',sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.font = `bold ${sz * 0.045}px 'Lexend',sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
       ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 5
       const words = seg.name.split(' ')
       if (words.length <= 2 && seg.name.length <= 11) {
@@ -159,7 +166,7 @@ export default function SpinnerModal({ teams, defaultTeamId, teamStars, teamInve
     startRotRef.current = rotation
     const extra = SPIN_MIN + Math.random() * (SPIN_MAX - SPIN_MIN)
     targetRotRef.current = rotation + extra
-    durRef.current = 3500 + Math.random() * 1000
+    durRef.current = 3500
 
     const animate = (now) => {
       let elapsed = now - startTimeRef.current
