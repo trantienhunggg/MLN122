@@ -104,7 +104,7 @@ export default function SpinnerModal({ teams, defaultTeamId, teamStars, teamInve
     ctx.clearRect(0, 0, sz, sz)
 
     if (N === 0) {
-      ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.font = '20px sans-serif'
+      ctx.fillStyle = '#333'; ctx.textAlign = 'center'; ctx.font = '20px sans-serif'
       ctx.fillText('Hết nguyên liệu!', cx, cy); return
     }
 
@@ -216,64 +216,81 @@ export default function SpinnerModal({ teams, defaultTeamId, teamStars, teamInve
   return (
     <div className="q-modal-backdrop">
       <div className="q-modal spinner-modal glass">
-        <div className="sm-header">
-          <div className="sm-title-area">
-            <span className="sm-title-emoji">🎡</span>
-            <div>
-              <h2 className="sm-title">Vòng Quay Kimbap</h2>
-              <p className="sm-subtitle">Chúc bạn may mắn với lượt quay của mình!</p>
+        {/* LEFT-RIGHT SPLIT LAYOUT */}
+        <div className="sm-split-layout">
+          {/* LEFT: Wheel */}
+          <div className="sm-left-col">
+            <div className="sm-wheel-area">
+              <div className="sm-wheel-wrapper large">
+                <canvas ref={canvasRef} className={`sm-canvas${isSpinning ? ' spinning' : ''}`} width={wheelSize} height={wheelSize} />
+                <div className="sm-pointer" />
+              </div>
             </div>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', alignItems: 'center', justifyContent: 'center', marginBottom: '15px' }}>
-          {/* Badge moved to share row with star bar */}
-          <div className="sm-spins-highlight-badge" style={{ margin: 0 }}>
-            THƯỞNG: <strong>{spinsRemaining}</strong> LƯỢT QUAY
-          </div>
-
-          {!winItem && !isSpinning && claimTeamHasStar && !isClaimed && (
-            <div className="sm-star-bar" style={{ margin: 0, flex: '1 1 auto' }}>
-              <span className="sm-star-info">⭐ Bạn có Ngôi Sao Hy Vọng!</span>
-              <button className="btn sm-star-btn" onClick={() => setShowStarPicker(true)}>🎁 Dùng sao — tự chọn item</button>
-            </div>
-          )}
-        </div>
-
-        <div className="sm-wheel-area">
-          <div className="sm-wheel-wrapper large">
-            <canvas ref={canvasRef} className={`sm-canvas${isSpinning ? ' spinning' : ''}`} width={wheelSize} height={wheelSize} />
-            <div className="sm-pointer" />
-          </div>
-        </div>
-
-        <div className="sm-actions">
-          {!winItem ? (
-            <button
-              className={`btn btn-primary sm-spin-btn${isSpinning ? ' spinning' : ''}`}
-              onClick={spin}
-              disabled={isSpinning || showStarPicker || N === 0 || isClaimed}
-            >
-              {isSpinning ? 'Đang quay...' : (N === 0 ? 'Hết hàng!' : 'QUAY NGAY!')}
-            </button>
-          ) : (
-            <div className="sm-win-result">
-              <Confetti />
-              <span className="sm-win-emoji">{winItem.emoji}</span>
-              <h3 className="sm-win-name">{winItem.name}</h3>
-              <p className="sm-win-team">Chúc mừng <strong>{claimTeam?.name}</strong>!</p>
+            {!winItem ? (
               <button
-                className="btn btn-gold sm-claim-btn"
-                onClick={handleRegularClaim}
-                disabled={isClaimed}
+                className={`btn btn-primary sm-spin-btn${isSpinning ? ' spinning' : ''}`}
+                onClick={spin}
+                disabled={isSpinning || showStarPicker || N === 0 || isClaimed}
               >
-                {isClaimed ? 'ĐANG NHẬN...' : `NHẬN: ${winItem.name}`}
+                {isSpinning ? 'Đang quay...' : (N === 0 ? 'Hết hàng!' : '🎰 QUAY NGAY!')}
               </button>
-              {spinsRemaining > 1 && !isClaimed && (
-                <p className="sm-next-spin-hint">Sau đó bạn sẽ còn {spinsRemaining - 1} lượt quay tiếp theo!</p>
-              )}
+            ) : null}
+          </div>
+
+          {/* RIGHT: Info & Result */}
+          <div className="sm-right-col">
+            <div className="sm-right-header">
+              <span className="sm-title-emoji">🎡</span>
+              <div>
+                <h2 className="sm-title">Vòng Quay Kimbap</h2>
+                <p className="sm-subtitle">Chúc bạn may mắn!</p>
+              </div>
             </div>
-          )}
+
+            <div className="sm-spins-highlight-badge">
+              THƯỞNG: <strong>{spinsRemaining}</strong> LƯỢT QUAY
+            </div>
+
+            {!winItem && !isSpinning && claimTeamHasStar && !isClaimed && (
+              <div className="sm-star-bar">
+                <span className="sm-star-info">⭐ Bạn có Ngôi Sao Hy Vọng!</span>
+                <button className="btn sm-star-btn" onClick={() => setShowStarPicker(true)}>🎁 Dùng sao — tự chọn item</button>
+              </div>
+            )}
+
+            {/* Win Result */}
+            {winItem && (
+              <div className="sm-win-result">
+                <Confetti />
+                <span className="sm-win-emoji">{winItem.emoji}</span>
+                <h3 className="sm-win-name">{winItem.name}</h3>
+                <p className="sm-win-team">Chúc mừng <strong style={{ color: currentTeamColor }}>{claimTeam?.name}</strong>!</p>
+                <button
+                  className="btn btn-gold sm-claim-btn"
+                  onClick={handleRegularClaim}
+                  disabled={isClaimed}
+                >
+                  {isClaimed ? '✓ ĐÃ NHẬN' : `NHẬN: ${winItem.name}`}
+                </button>
+                {spinsRemaining > 1 && !isClaimed && (
+                  <p className="sm-next-spin-hint">Còn {spinsRemaining - 1} lượt quay tiếp!</p>
+                )}
+              </div>
+            )}
+
+            {/* Waiting state */}
+            {!winItem && !isSpinning && (
+              <div className="sm-waiting">
+                <p className="sm-waiting-text">Nhấn nút <strong>QUAY NGAY</strong> để bắt đầu!</p>
+              </div>
+            )}
+            {isSpinning && (
+              <div className="sm-waiting">
+                <div className="sm-spinning-anim">🎯</div>
+                <p className="sm-waiting-text">Đang quay...</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {showStarPicker && (

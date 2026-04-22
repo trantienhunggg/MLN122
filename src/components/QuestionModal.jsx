@@ -71,6 +71,7 @@ export default function QuestionModal({
   const [timerActive, setTimerActive] = useState(false)
   const [showCorrectAnim, setShowCorrectAnim] = useState(false)
   const [starUsedOnThisQuestion, setStarUsedOnThisQuestion] = useState(false)
+  const [revealPhase, setRevealPhase] = useState(null) // null | 'showing-correct' | 'showing-wrong'
   const audioCtxRef = useRef(null)
   const timerRef = useRef(null)
 
@@ -100,12 +101,7 @@ export default function QuestionModal({
     return () => clearInterval(timerRef.current)
   }, [timerActive])
 
-  useEffect(() => {
-    if (isCorrect && question.type === 'guess') {
-      const timer = setTimeout(() => onCorrect(question.tier, activeTeam?.id), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [isCorrect, question.type, question.tier, activeTeam, onCorrect])
+  // Auto-transition removed — now handled by revealPhase + overlay button
 
   const hasStar = !starUsedOnThisQuestion && activeTeam && (teamStars[activeTeam.id] ?? 0) > 0
   const isTier3 = question.tier === 3
@@ -123,13 +119,32 @@ export default function QuestionModal({
     setTimerActive(false)
     clearInterval(timerRef.current)
     if (idx === question.answer) {
-      setIsCorrect(true); setIsAnswered(true); setShowCorrectAnim(true)
+      setIsCorrect(true); setIsAnswered(true)
       playCorrectSound(audioCtxRef.current)
+      if (question.type === 'guess') {
+        // Guess correct: show answer first, then overlay after delay
+        setRevealPhase('showing-correct')
+        setTimeout(() => {
+          setRevealPhase(null)
+          setShowCorrectAnim(true)
+        }, 3000)
+      } else {
+        setShowCorrectAnim(true)
+      }
     } else {
       setIsCorrect(false); setIsAnswered(true)
       setReaction(WRONG_REACTIONS[Math.floor(Math.random() * WRONG_REACTIONS.length)])
       playWrongSound(audioCtxRef.current)
-      setShowWrongChoices(true)
+      if (question.type === 'guess') {
+        // Guess wrong: show correct answer first, then wrong overlay
+        setRevealPhase('showing-wrong')
+        setTimeout(() => {
+          setRevealPhase(null)
+          setShowWrongChoices(true)
+        }, 3000)
+      } else {
+        setShowWrongChoices(true)
+      }
     }
   }
 
@@ -219,21 +234,43 @@ export default function QuestionModal({
           {/* Options */}
           {question.type === 'guess' ? (
             <div className="qp-guess" style={{ opacity: activeTeam ? 1 : 0.4, pointerEvents: activeTeam ? 'auto' : 'none' }}>
-              <div className={`qp-guess-display${isCorrect && isAnswered ? ' revealed' : ''}`}>
-                {(isCorrect && isAnswered) ? question.answerText : question.options[0]}
+              {/* Reveal label */}
+              {revealPhase && (
+                <div className={`qp-reveal-label ${revealPhase === 'showing-correct' ? 'correct' : 'wrong'}`}>
+                  {revealPhase === 'showing-correct'
+                    ? <><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg> Đáp án đúng!</>
+                    : <><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Sai rồi! Đáp án đúng là:</>}
+                </div>
+              )}
+              <div className={`qp-guess-display${(isAnswered && (isCorrect || revealPhase)) ? ' revealed' : ''}${revealPhase === 'showing-wrong' ? ' wrong-reveal' : ''}`}>
+                {(isAnswered && (isCorrect || revealPhase)) ? question.answerText : question.options[0]}
               </div>
-              <div className="qp-guess-btns">
-                <button className="qp-gbtn qp-gbtn-yes" onClick={() => handleOptionClick(1)}
-                  disabled={!activeTeam || isAnswered || showCorrectAnim || showStealUI}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
-                  ĐÚNG
-                </button>
-                <button className="qp-gbtn qp-gbtn-no" onClick={() => handleOptionClick(0)}
-                  disabled={!activeTeam || isAnswered || showCorrectAnim || showStealUI}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                  SAI
-                </button>
-              </div>
+              {/* Show image + explanation during reveal */}
+              {revealPhase && question.image && (
+                <div className="qp-reveal-img-area">
+                  <img src={question.image} alt="Hình đáp án" className="qp-reveal-img" />
+                </div>
+              )}
+              {revealPhase && question.explanation && (
+                <div className="qp-reveal-explain">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                  {question.explanation}
+                </div>
+              )}
+              {!revealPhase && (
+                <div className="qp-guess-btns">
+                  <button className="qp-gbtn qp-gbtn-yes" onClick={() => handleOptionClick(1)}
+                    disabled={!activeTeam || isAnswered || showCorrectAnim || showStealUI}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                    ĐÚNG
+                  </button>
+                  <button className="qp-gbtn qp-gbtn-no" onClick={() => handleOptionClick(0)}
+                    disabled={!activeTeam || isAnswered || showCorrectAnim || showStealUI}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                    SAI
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="qp-options" style={{ opacity: activeTeam ? 1 : 0.4, pointerEvents: activeTeam ? 'auto' : 'none' }}>
