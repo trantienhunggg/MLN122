@@ -791,9 +791,20 @@ html {
 }
 
 @keyframes pulse-gold {
-  0% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
-  50% { transform: scale(1.05); box-shadow: 0 0 25px rgba(255, 215, 0, 0.6); }
-  100% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  }
+
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  }
 }
 
 .sm-next-spin-hint {
@@ -1805,10 +1816,15 @@ html {
   transform: scale(1.2) translateY(-5px) !important;
   background: white !important;
   color: black !important;
-  box-shadow: 0 0 40px white, 0 0 80px var(--cell-color) !important;
+  box-shadow:
+    0 0 20px #fff,
+    0 0 40px var(--cell-color),
+    0 0 60px var(--cell-color),
+    inset 0 0 15px rgba(255, 255, 255, 0.8) !important;
   z-index: 100 !important;
   border: 4px solid white !important;
   opacity: 1 !important;
+  animation: borderGlowPulse 0.4s infinite alternate !important;
 }
 
 .num-cell.highlighted .num-label {
@@ -1818,6 +1834,29 @@ html {
 .num-cell.highlighted::before {
   display: none !important;
 }
+
+@keyframes borderGlowPulse {
+  from {
+    border-color: #fff;
+    box-shadow:
+      0 0 15px #fff,
+      0 0 30px var(--cell-color),
+      0 0 45px var(--cell-color),
+      inset 0 0 10px rgba(255, 255, 255, 0.5);
+    transform: scale(1.2) translateY(-5px);
+  }
+
+  to {
+    border-color: var(--cell-color);
+    box-shadow:
+      0 0 30px #fff,
+      0 0 60px var(--cell-color),
+      0 0 90px var(--cell-color),
+      inset 0 0 20px rgba(255, 255, 255, 1);
+    transform: scale(1.25) translateY(-8px);
+  }
+}
+
 
 @keyframes cellGlow {
   from {
