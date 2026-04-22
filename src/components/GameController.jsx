@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { QUESTIONS, KIMBAP_INGREDIENTS } from '../data'
+import { QUESTIONS, KIMBAP_INGREDIENTS, PUZZLE_IMAGE_URL } from '../data'
 import NumberBoard from './NumberBoard'
 import QuestionModal from './QuestionModal'
 import SpinnerModal from './SpinnerModal'
@@ -11,6 +11,12 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
   const [activeNumber, setActiveNumber] = useState(null)
   const [selectedTeamId, setSelectedTeamId] = useState(teams[0]?.id ?? 0)
   const [spinnerTeamId, setSpinnerTeamId] = useState(teams[0]?.id ?? 0)
+
+  // Picture Guess feature
+  const [showPictureGuess, setShowPictureGuess] = useState(false)
+  const [pgPhase, setPgPhase] = useState('team-select') // 'team-select' | 'confirm' | 'pick-items'
+  const [pgTeam, setPgTeam] = useState(null)
+  const [pgPickedItems, setPgPickedItems] = useState([])
 
   const selectedTeam = teams.find(t => t.id === selectedTeamId)
 
@@ -135,7 +141,7 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
   }
 
   const handleSkipQuestion = () => {
-    setUsedNumbers(prev => [...prev, activeNumber])
+    // Don't reveal tile — only correct answers should open tiles
     setActiveQuestion(null)
     setActiveNumber(null)
     setPhase('board')
@@ -184,6 +190,50 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
     setPhase('board')
   }
 
+  // ── Picture Guess handlers ──
+  const handleOpenPictureGuess = () => {
+    setShowPictureGuess(true)
+    setPgPhase('team-select')
+    setPgTeam(null)
+    setPgPickedItems([])
+  }
+
+  const handlePgSelectTeam = (team) => {
+    setPgTeam(team)
+    setPgPhase('confirm')
+  }
+
+  const handlePgCorrect = () => {
+    setPgPhase('pick-items')
+  }
+
+  const handlePgWrong = () => {
+    setShowPictureGuess(false)
+  }
+
+  const handlePgPickItem = (ingredient) => {
+    // Check global stock
+    const globalCount = teams.reduce((acc, t) => acc + (teamInventories[t.id]?.[ingredient.name] || 0), 0)
+    if (globalCount >= 5) return
+    onAddIngredient(pgTeam.id, ingredient)
+    setPgPickedItems(prev => [...prev, ingredient.name])
+  }
+
+  const handlePgDone = () => {
+    setShowPictureGuess(false)
+  }
+
+  const getPickableIngredients = () => {
+    if (!pgTeam) return []
+    const teamInv = teamInventories[pgTeam.id] || {}
+    return KIMBAP_INGREDIENTS.filter(ing => {
+      const teamHas = teamInv[ing.name] || 0
+      if (teamHas > 0) return false // Already has this ingredient
+      const globalCount = teams.reduce((acc, t) => acc + (teamInventories[t.id]?.[ing.name] || 0), 0)
+      return globalCount < 5 // Still available in stock
+    })
+  }
+
   return (
     <>
       <audio ref={bgmRef} src="/bgm-home.mp3" loop />
@@ -212,6 +262,14 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
                 disabled={isRandomizing}
               >
                 🎲
+              </button>
+              <button
+                className="btn btn-guess-picture"
+                onClick={handleOpenPictureGuess}
+                disabled={isRandomizing || phase !== 'board'}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Đoán hình
               </button>
             </div>
           </header>
@@ -295,6 +353,87 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
           spinsRemaining={spinsRemaining}
           onClaim={handleSpinClaim}
         />
+      )}
+
+      {/* Picture Guess Modal */}
+      {showPictureGuess && (
+        <div className="qp-overlay" style={{ zIndex: 600 }}>
+          {pgPhase === 'team-select' && (
+            <div className="qp-overlay-card pg-card">
+              <div className="pg-header-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </div>
+              <h2 className="pg-title">Đoán Hình Bí Ẩn</h2>
+              <p className="pg-sub">Đội nào muốn đoán bức tranh phía sau?</p>
+              <div className="pg-team-grid">
+                {teams.map(t => (
+                  <button key={t.id} className="qp-steal-team" style={{ '--tc': t.color }}
+                    onClick={() => handlePgSelectTeam(t)}>
+                    <span className="qp-tc-dot" style={{ background: t.color }} />
+                    {t.name}
+                  </button>
+                ))}
+              </div>
+              <button className="qp-action-btn qp-back-btn" onClick={() => setShowPictureGuess(false)}>
+                ← Hủy bỏ
+              </button>
+            </div>
+          )}
+
+          {pgPhase === 'confirm' && (
+            <div className="qp-overlay-card pg-card">
+              <h2 className="pg-title" style={{ color: pgTeam.color }}>
+                Đội {pgTeam.name} đoán hình
+              </h2>
+              <div className="pg-reveal-img-wrap">
+                <img src={PUZZLE_IMAGE_URL} alt="Hình bí ẩn" className="pg-reveal-img" />
+              </div>
+              <p className="pg-sub">MC xác nhận: Đội đoán có đúng không?</p>
+              <div className="pg-confirm-btns">
+                <button className="qp-action-btn pg-btn-correct" onClick={handlePgCorrect}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  Đúng rồi!
+                </button>
+                <button className="qp-action-btn pg-btn-wrong" onClick={handlePgWrong}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  Sai rồi!
+                </button>
+              </div>
+            </div>
+          )}
+
+          {pgPhase === 'pick-items' && (
+            <div className="qp-overlay-card pg-card pg-pick-card">
+              <div className="pg-header-icon pg-success-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <h2 className="pg-title" style={{ color: '#4ade80' }}>Chính xác!</h2>
+              <p className="pg-sub">Chọn nguyên liệu đội <strong style={{ color: pgTeam.color }}>{pgTeam.name}</strong> còn thiếu:</p>
+              {getPickableIngredients().length === 0 ? (
+                <p className="pg-sub" style={{ color: '#FFD700' }}>Đội đã có đủ tất cả nguyên liệu! 🎉</p>
+              ) : (
+                <div className="pg-items-grid">
+                  {getPickableIngredients().map(ing => (
+                    <button key={ing.name} className="pg-item-btn"
+                      onClick={() => handlePgPickItem(ing)}
+                      disabled={pgPickedItems.includes(ing.name)}>
+                      <span className="pg-item-emoji">{ing.emoji}</span>
+                      <span className="pg-item-name">{ing.name}</span>
+                      {pgPickedItems.includes(ing.name) && (
+                        <span className="pg-item-check">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button className="qp-action-btn qp-spin-btn" style={{ marginTop: 20 }} onClick={handlePgDone}>
+                ✓ Hoàn tất
+              </button>
+            </div>
+          )}
+        </div>
       )}
     </>
   )

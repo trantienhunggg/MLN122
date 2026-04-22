@@ -318,7 +318,7 @@ export default function QuestionModal({
       )}
 
       {/* ── CORRECT OVERLAY ── */}
-      {showCorrectAnim && question.type !== 'guess' && (
+      {showCorrectAnim && (
         <div className="qp-overlay qp-correct-overlay">
           <div className="qp-overlay-card qp-correct-card">
             <div className="qp-correct-icon">
