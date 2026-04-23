@@ -52,7 +52,7 @@ export const QUESTIONS = [
   { id: 14, tier: 1, question: 'Bố mẹ có 6 người con trai, mỗi người con trai có 1 em gái. Hỏi gia đình có mấy người?', type: 'multiple', options: ['6', '7', '8', '9'], answer: 3 },
   { id: 25, tier: 1, question: 'Dịch nghĩa câu sau: "tư khư bàn khan khà kha biền khiên"?', type: 'multiple', options: ['Tư bản khả biến', 'Tư bản bất biến', 'Phủ định', 'Nhân quả'], answer: 0 },
   { id: 8, tier: 1, question: 'Xe gì không có bánh mà vẫn biết đi?', type: 'guess', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'XE TRONG CỜ VUA' },
-  { id: 30, tier: 1, question: '1+1=?', type: 'multiple', options: ['1', '2', '3', '4'], answer: 2 },
+  { id: 30, tier: 1, question: '1+1=?', type: 'multiple', options: ['1', '2', '3', '4'], answer: 1 },
   { id: 2, tier: 1, question: 'ậ/L/n/ợ/i/h/u/n', type: 'guess', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'LỢI NHUẬN' },
   { id: 12, tier: 1, question: 'o/L/ộ/a/đ/g/n', type: 'guess', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'LAO ĐỘNG' },
   { id: 19, tier: 1, question: '/a/h/ó/n/g/à/H', type: 'guess', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'HÀNG HÓA' },
