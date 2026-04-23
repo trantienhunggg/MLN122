@@ -132,9 +132,30 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
     setPhase('question')
   }
 
+  const getAvailableIngredientsForTeam = (teamId) => {
+    const teamInv = teamInventories[teamId] || {}
+    return KIMBAP_INGREDIENTS.filter(ing => {
+      const teamHas = teamInv[ing.name] || 0
+      if (teamHas >= 2) return false
+      const globalCount = teams.reduce((acc, t) => acc + (teamInventories[t.id]?.[ing.name] || 0), 0)
+      return globalCount < 5
+    })
+  }
+
   const handleCorrectAnswer = (tier, teamId) => {
     setUsedNumbers(prev => [...prev, activeNumber])
-    setSpinnerTeamId(teamId || selectedTeamId)
+    const tid = teamId || selectedTeamId
+    const available = getAvailableIngredientsForTeam(tid)
+
+    if (available.length === 0) {
+      setPhase('board')
+      setSpinnerTeamId(teams[0]?.id ?? 0)
+      setActiveQuestion(null)
+      setActiveNumber(null)
+      return
+    }
+
+    setSpinnerTeamId(tid)
     setSpinsRemaining(tier || 1)
     setPhase('spinner')
   }
@@ -156,14 +177,30 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
 
     // 2. Decrement spins sequentially
     const nextSpins = spinsRemaining - 1
-    setSpinsRemaining(nextSpins)
+
+    // Check if team has run out of ingredients after this claim
+    const currentAvailable = getAvailableIngredientsForTeam(claimTeamId)
+    const teamInv = teamInventories[claimTeamId] || {}
+    const teamCountAfter = (teamInv[ingredient.name] || 0) + 1
+    const globalCountAfter = teams.reduce((acc, t) => acc + (teamInventories[t.id]?.[ingredient.name] || 0), 0) + 1
+
+    let stillHasAvailable = false
+    for (const ing of KIMBAP_INGREDIENTS) {
+      if (ing.name === ingredient.name) {
+        if (teamCountAfter < 2 && globalCountAfter < 5) stillHasAvailable = true
+      } else {
+        if (currentAvailable.some(a => a.name === ing.name)) stillHasAvailable = true
+      }
+    }
 
     // 3. Decide if we finish or continue
-    if (nextSpins <= 0) {
+    if (nextSpins <= 0 || !stillHasAvailable) {
       setPhase('board')
       setSpinnerTeamId(teams[0]?.id ?? 0)
       setActiveQuestion(null)
       setActiveNumber(null)
+    } else {
+      setSpinsRemaining(nextSpins)
     }
   }
 
