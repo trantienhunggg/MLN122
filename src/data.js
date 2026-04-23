@@ -35,38 +35,40 @@ export const PUZZLE_IMAGE_URL = '/Picture1.png'
 export const GRID_CONFIG = { ROWS: 5, COLS: 6 }
 
 // ===== 30 TIERED QUESTIONS (Mác-Lênin) =====
-// Tier 3: 3 spins (One try only, 45s)
-// Tier 2: 2 spins (17s -> 10s -> 5s)
-// Tier 1: 1 spin (17s -> 8s -> 5s)
+// Tier 3: 3 spins (15s -> 10s -> 5s)
+// Tier 2: 2 spins (15s -> 10s -> 5s)
+// Tier 1: 1 spin (15s -> 10s -> 5s)
 export const QUESTIONS = [
-  { id: 1, tier: 1, question: 'Khối lượng giá trị thặng dư (M) được tính bằng công thức', type: 'multiple', options: ['M = m\'. K', 'M = m\'. C', 'M = m\'. V', 'M = m\'. V\''], answer: 2 },
-  { id: 2, tier: 1, question: 'Mâu thuẫn chung trong công thức chung của tư bản là:', type: 'multiple', options: ['T\' > T', 'T\' < T', 'T\' = T', 'T\' > H\''], answer: 0 },
-  { id: 3, tier: 1, question: 'Công thức chung của tư bản là:', type: 'multiple', options: ['H-T-H', 'T-H-T\'', 'T-H-T', 'H-T\'-H'], answer: 1 },
-  { id: 4, tier: 1, question: 'Khối lượng giá trị thặng dư được tính bằng công thức nào?', type: 'multiple', options: ['M = m\' x p\'', 'M = m\' x V', 'M = m\' x t\'', 'M = V / m\''], answer: 1 },
-  { id: 5, tier: 1, question: 'Theo công thức chung của tư bản thì T\' được tính như thế nào?', type: 'multiple', options: ['T\'= T + t (t>0)', 'T\'= T + t (t<0)', 'T\'= T + t (t>=0)', 'T\'= T + t + t (t<=0)'], answer: 0 },
-  { id: 6, tier: 1, question: 'Phép biện chứng duy vật được xây dựng trên cơ sở nào?', type: 'multiple', options: ['Phép Hegel', 'Duy vật Feuerbach', 'Kết hợp cả hai', 'Triết học Hy Lạp'], answer: 2 },
-  { id: 7, tier: 1, question: 'Tác phẩm "Bộ Tư Bản" xuất bản tập 1 năm nào?', type: 'multiple', options: ['1848', '1867', '1883', '1871'], answer: 1 },
-  { id: 8, tier: 1, question: 'Nguồn gốc của giá trị thặng dư là gì?', type: 'multiple', options: ['Lợi nhuận buôn bán', 'Lao động bị chiếm đoạt', 'Tài nguyên', 'Vốn đầu tư'], answer: 1 },
-  { id: 9, tier: 1, question: 'Cách mạng Tháng Mười Nga nổ ra năm nào?', type: 'multiple', options: ['1905', '1917', '1921', '1914'], answer: 1 },
-  { id: 10, tier: 1, question: 'Đảng Cộng sản Việt Nam thành lập năm nào?', type: 'multiple', options: ['1925', '1930', '1945', '1954'], answer: 1 },
-  { id: 11, tier: 2, question: 'Đặc trưng cơ bản của chủ nghĩa đế quốc theo Lênin?', type: 'multiple', options: ['Cạnh tranh tự do', 'Sự thống trị của tư bản tài chính', 'Phát triển công nghiệp', 'Thương mại quốc tế'], answer: 1 },
-  { id: 12, tier: 2, question: 'Quy luật cơ bản nhất của phép biện chứng duy vật?', type: 'multiple', options: ['Lượng - chất', 'Phủ định', 'Thống nhất và đấu tranh mặt đối lập', 'Nhân quả'], answer: 2 },
-  { id: 13, tier: 2, question: 'Hồ Chí Minh tìm thấy con đường cứu nước qua tác phẩm nào?', type: 'multiple', options: ['Nhà nước & Cách mạng', 'Sơ thảo đề cương về dân tộc', 'Bút ký triết học', 'Chế độ thuộc địa'], answer: 1 },
-  { id: 15, tier: 1, question: '1+1=?', type: 'multiple', options: ['1', '2', '3', '4'], answer: 1 },
-  { id: 16, tier: 1, question: 'Vật chất theo triết học Mác-Lênin là gì?', type: 'multiple', options: ['Sự vật hiện tượng', 'Tri thực tại khách quan', 'Nguyên tử', 'Năng lượng'], answer: 1 },
-  { id: 17, tier: 1, question: 'Giai cấp vô sản là giai cấp nào?', type: 'multiple', options: ['Bán sức lao động', 'Nông dân nghèo', 'Trí thức', 'Tiểu tư sản'], answer: 0 },
-  { id: 18, tier: 2, question: 'Nhìn hình đoán chữ:', type: 'guess', image: '/kienthuc.png', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'KIẾN THỨC' },
-  { id: 19, tier: 1, question: 'Phương thức sản xuất gồm những yếu tố nào?', type: 'multiple', options: ['LLSX và QHSX', 'Công cụ và đối tượng', 'CSHT và KTTT', 'Kinh tế và chính trị'], answer: 0 },
-  { id: 20, tier: 1, question: 'Cách mạng XHCN khác CM tư sản ở điểm nào?', type: 'multiple', options: ['Lãnh đạo', 'Xóa bỏ tư hữu', 'Phương pháp', 'Mục tiêu'], answer: 1 },
-  { id: 14, tier: 1, question: '2 con vịt đi trước 2 con vịt\n2 con vịt đi sau 2 con vịt\n2 con vịt đi giữa 2 con vịt\nHỏi có mấy con vịt?', type: 'guess', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: '4 CON VỊT' },
-  { id: 21, tier: 1, question: '"Chủ nghĩa đế quốc - giai đoạn tột cùng của CNTB" là của ai?', type: 'multiple', options: ['Marx', 'Engels', 'Lênin', 'Stalin'], answer: 2 },
-  { id: 22, tier: 1, question: 'Giá trị hàng hóa được đo bằng gì?', type: 'multiple', options: ['Tiền vốn', 'Thời gian lao động cần thiết', 'Giá thị trường', 'Công sức'], answer: 1 },
-  { id: 23, tier: 2, question: 'Kiến trúc thượng tầng bao gồm những gì?', type: 'multiple', options: ['Nhà nước, pháp luật, ý thức', 'Công nghệ', 'Sản xuất', 'Tài nguyên'], answer: 0 },
-  { id: 26, tier: 2, question: 'Theo Mác, hàng hóa có mấy thuộc tính?', type: 'multiple', options: ['1', '2', '3', '4'], answer: 1 },
-  { id: 28, tier: 3, question: 'Quy luật lượng – chất thể hiện điều gì? (ĐẶC BIÊT)', type: 'multiple', options: ['Mâu thuẫn', 'Sự chuyển hóa lượng thành chất', 'Phủ định', 'Mối liên hệ'], answer: 1 },
-  { id: 29, tier: 3, question: 'Đảng Bôn-sê-vích do ai sáng lập? (ĐẶC BIỆT)', type: 'multiple', options: ['Plekhanov', 'V.I. Lênin', 'Trotsky', 'Stalin'], answer: 1 },
-  { id: 30, tier: 3, question: 'Tư tưởng Hồ Chí Minh là sự vận dụng sáng tạo chủ nghĩa nào? (ĐẶC BIỆT)', type: 'multiple', options: ['Dân chủ tư sản', 'Mác-Lênin', 'Dân tộc', 'Nhân văn'], answer: 1 },
-  { id: 31, tier: 2, question: 'Nhìn hình đoán chữ:', type: 'guess', image: '/3sao7ban.png', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'TAM SAO THẤT BẢN' },
-  { id: 32, tier: 2, question: 'Nhìn hình đoán chữ:', type: 'guess', image: '/6.png', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'SỐ 6' },
-  { id: 33, tier: 2, question: 'Nhìn hình đoán chữ:', type: 'guess', image: '/giandiep.png', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'GIÁN ĐIỆP' },
+  { id: 15, tier: 1, question: 'Khối lượng giá trị thặng dư (M) được tính bằng công thức', type: 'multiple', options: ['M = m\'. K', 'M = m\'. C', 'M = m\'. V', 'M = m\'. V\''], answer: 2 },
+  { id: 27, tier: 1, question: 'Mâu thuẫn chung trong công thức chung của tư bản là:', type: 'multiple', options: ['T\' > T', 'T\' < T', 'T\' = T', 'T\' > H\''], answer: 0 },
+  { id: 4, tier: 1, question: 'Công thức chung của tư bản là:', type: 'multiple', options: ['H-T-H', 'T-H-T\'', 'T-H-T', 'H-T\'-H'], answer: 1 },
+  { id: 18, tier: 1, question: 'Khối lượng giá trị thặng dư được tính bằng công thức nào?', type: 'multiple', options: ['M = m\' x p\'', 'M = m\' x V', 'M = m\' x t\'', 'M = V / m\''], answer: 1 },
+  { id: 9, tier: 1, question: 'Theo công thức chung của tư bản thì T\' được tính như thế nào?', type: 'multiple', options: ['T\'= T + t (t>0)', 'T\'= T + t (t<0)', 'T\'= T + t (t>=0)', 'T\'= T + t + t (t<=0)'], answer: 0 },
+  { id: 3, tier: 1, question: 'Hai thuộc tính của hàng hóa là:', type: 'multiple', options: ['Giá trị & giá cả', 'Giá trị sử dụng & giá trị', 'Giá trị & tiền', 'Lao động & sản phẩm'], answer: 1 },
+  { id: 21, tier: 1, question: 'Hàng hóa là gì?', type: 'multiple', options: ['Sản phẩm để tiêu dùng', 'Sản phẩm trao đổi mua bán', 'Sản phẩm tự nhiên', 'Sản phẩm không có giá trị'], answer: 1 },
+  { id: 11, tier: 1, question: 'Nguồn gốc của giá trị thặng dư là gì?', type: 'multiple', options: ['Lợi nhuận buôn bán', 'Lao động bị chiếm đoạt', 'Tài nguyên', 'Vốn đầu tư'], answer: 0 },
+  { id: 29, tier: 1, question: 'Thứ gì sinh ra tiền nhưng bản thân nó cũng là một loại hàng hóa?', type: 'multiple', options: ['Vốn', 'Hàng hóa', 'Lao động', 'Sức lao động'], answer: 3 },
+  { id: 6, tier: 1, question: 'Thứ gì càng sản xuất nhiều thì giá trị đơn vị lại càng giảm?', type: 'multiple', options: ['Vốn', 'Lao động', 'Năng suất lao động ', 'Công nghệ'], answer: 2 },
+  { id: 14, tier: 1, question: 'Bố mẹ có 6 người con trai, mỗi người con trai có 1 em gái. Hỏi gia đình có mấy người?', type: 'multiple', options: ['6', '7', '8', '9'], answer: 3 },
+  { id: 25, tier: 1, question: 'Dịch nghĩa câu sau: "tư khư bàn khan khà kha biền khiên"?', type: 'multiple', options: ['Tư bản khả biến', 'Tư bản bất biến', 'Phủ định', 'Nhân quả'], answer: 0 },
+  { id: 8, tier: 1, question: 'Xe gì không có bánh mà vẫn biết đi?', type: 'guess', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'XE TRONG CỜ VUA' },
+  { id: 30, tier: 1, question: '1+1=?', type: 'multiple', options: ['1', '2', '3', '4'], answer: 2 },
+  { id: 2, tier: 1, question: 'ậ/L/n/ợ/i/h/u/n', type: 'guess', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'LỢI NHUẬN' },
+  { id: 12, tier: 1, question: 'o/L/ộ/a/đ/g/n', type: 'guess', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'LAO ĐỘNG' },
+  { id: 19, tier: 1, question: '/a/h/ó/n/g/à/H', type: 'guess', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'HÀNG HÓA' },
+  { id: 7, tier: 1, question: 'ư/g/d/h/ặ/n/T', type: 'guess', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'THẶNG DƯ' },
+  { id: 23, tier: 1, question: '2 con vịt đi trước 2 con vịt\n2 con vịt đi sau 2 con vịt\n2 con vịt đi giữa 2 con vịt\nHỏi có mấy con vịt?', type: 'guess', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: '4 CON VỊT' },
+  { id: 10, tier: 1, question: 'q/Đ/u/ề/n/ộ/y/c', type: 'guess', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'ĐỘC QUYỀN' },
+  { id: 26, tier: 1, question: '3+5x4-8 = ?', type: 'multiple', options: ['12', '18', '15', '13'], answer: 1 },
+  { id: 17, tier: 1, question: 't/ả/x/T/i/s/á/u/n/ấ', type: 'guess', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'TÀI SẢN' },
+
+  { id: 13, tier: 3, question: 'Nhìn hình đoán chữ:', type: 'guess', image: '/C.png', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'C' },
+  { id: 20, tier: 3, question: 'Nhìn hình đoán chữ:', type: 'guess', image: '/28.png', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: '28' },
+  { id: 5, tier: 3, question: 'Nhìn hình đoán chữ:', type: 'guess', image: '/21.png', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: '21' },
+
+  { id: 22, tier: 2, question: 'Nhìn hình đoán chữ:', type: 'guess', image: '/3sao7ban.png', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'TAM SAO THẤT BẢN' },
+  { id: 16, tier: 2, question: 'Nhìn hình đoán chữ:', type: 'guess', image: '/6.png', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'SỐ 6' },
+  { id: 28, tier: 2, question: 'Nhìn hình đoán chữ:', type: 'guess', image: '/giandiep.png', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'GIÁN ĐIỆP' },
+  { id: 1, tier: 2, question: 'Nhìn hình đoán chữ:', type: 'guess', image: '/dgxichdao.png', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'ĐƯỜNG XÍCH ĐẠO' },
+  { id: 24, tier: 2, question: 'Nhìn hình đoán chữ:', type: 'guess', image: '/kienthuc.png', options: ['❓ ĐÁP ÁN LÀ GÌ? ❓'], answer: 1, answerText: 'KIẾN THỨC' },
 ]

@@ -76,9 +76,7 @@ export default function QuestionModal({
   const timerRef = useRef(null)
 
   const calculateInitialTime = (tier, turn) => {
-    if (tier === 3) return 45
-    if (tier === 2) { return turn === 1 ? 17 : turn === 2 ? 10 : 5 }
-    return turn === 1 ? 17 : turn === 2 ? 8 : 5
+    return turn === 1 ? 15 : turn === 2 ? 10 : 5
   }
 
   useEffect(() => {
@@ -129,22 +127,17 @@ export default function QuestionModal({
           setShowCorrectAnim(true)
         }, 3000)
       } else {
-        setShowCorrectAnim(true)
+        // Multi correct: show answer first, then overlay after delay
+        setTimeout(() => {
+          setShowCorrectAnim(true)
+        }, 3000)
       }
     } else {
       setIsCorrect(false); setIsAnswered(true)
       setReaction(WRONG_REACTIONS[Math.floor(Math.random() * WRONG_REACTIONS.length)])
       playWrongSound(audioCtxRef.current)
-      if (question.type === 'guess') {
-        // Guess wrong: show correct answer first, then wrong overlay
-        setRevealPhase('showing-wrong')
-        setTimeout(() => {
-          setRevealPhase(null)
-          setShowWrongChoices(true)
-        }, 3000)
-      } else {
-        setShowWrongChoices(true)
-      }
+      // When wrong: show wrong choices overlay immediately, don't reveal the answer
+      setShowWrongChoices(true)
     }
   }
 
@@ -315,12 +308,10 @@ export default function QuestionModal({
                   Dùng Ngôi Sao Hy Vọng
                 </button>
               )}
-              {!isTier3 && (
-                <button className="qp-action-btn qp-steal-btn" onClick={handleOpenStealUI}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>
-                  Nhường quyền trả lời
-                </button>
-              )}
+              <button className="qp-action-btn qp-steal-btn" onClick={handleOpenStealUI}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>
+                Nhường quyền trả lời
+              </button>
               <button className="qp-action-btn qp-skip-btn" onClick={onNextQuestion}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="13 17 18 12 13 7" /><polyline points="6 17 11 12 6 7" /></svg>
                 Câu tiếp theo
@@ -380,12 +371,10 @@ export default function QuestionModal({
             </div>
             <h2 className="qp-timeout-title">Hết giờ!</h2>
             <div className="qp-wrong-actions">
-              {!isTier3 && (
-                <button className="qp-action-btn qp-steal-btn" onClick={handleOpenStealUI}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>
-                  Nhường quyền trả lời
-                </button>
-              )}
+              <button className="qp-action-btn qp-steal-btn" onClick={handleOpenStealUI}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>
+                Nhường quyền trả lời
+              </button>
               <button className="qp-action-btn qp-skip-btn" onClick={onNextQuestion}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="13 17 18 12 13 7" /><polyline points="6 17 11 12 6 7" /></svg>
                 Câu tiếp theo

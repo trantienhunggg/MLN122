@@ -21,15 +21,13 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
 
   const selectedTeam = teams.find(t => t.id === selectedTeamId)
 
-  // Map each number 1-50 to a question
+  // Map each number 1-30 to a question based on its ID
   const numberToQuestion = useMemo(() => {
     const map = {}
-    const shuffled = [...QUESTIONS].sort(() => Math.random() - 0.5)
-    for (let i = 1; i <= 50; i++) {
-      map[i] = shuffled[(i - 1) % shuffled.length]
-    }
+    QUESTIONS.forEach(q => {
+      map[q.id] = q
+    })
     return map
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const [isRandomizing, setIsRandomizing] = useState(false)
@@ -282,7 +280,7 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
                 onClick={handleOpenPictureGuess}
                 disabled={isRandomizing || phase !== 'board'}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
                 Đoán hình
               </button>
             </div>
@@ -375,7 +373,7 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
           {pgPhase === 'team-select' && (
             <div className="qp-overlay-card pg-card">
               <div className="pg-header-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4FC3F7" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
               </div>
               <h2 className="pg-title">Đoán Hình Bí Ẩn</h2>
               <p className="pg-sub">Đội nào muốn đoán bức tranh phía sau?</p>
@@ -397,7 +395,7 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
           {pgPhase === 'confirm' && (
             <div className="qp-overlay-card pg-card">
               <div className="pg-header-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0284c7" strokeWidth="1.5"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="12" r="10"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0284c7" strokeWidth="1.5"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><circle cx="12" cy="12" r="10" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
               </div>
               <h2 className="pg-title" style={{ color: pgTeam.color }}>
                 Đội {pgTeam.name} đoán hình
@@ -405,11 +403,11 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
               <p className="pg-sub">MC xác nhận: Đội đoán có đúng không?</p>
               <div className="pg-confirm-btns">
                 <button className="qp-action-btn pg-btn-correct" onClick={handlePgCorrect}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
                   Đúng rồi!
                 </button>
                 <button className="qp-action-btn pg-btn-wrong" onClick={handlePgWrong}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                   Sai rồi!
                 </button>
               </div>
@@ -420,16 +418,20 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
             <div className="qp-overlay-card pg-card">
               <div className={`pg-header-icon ${pgResult === 'correct' ? 'pg-success-icon' : 'pg-wrong-icon'}`}>
                 {pgResult === 'correct'
-                  ? <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
-                  : <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
+                  ? <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
+                  : <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>}
               </div>
               <h2 className="pg-title" style={{ color: pgResult === 'correct' ? '#166534' : '#991b1b' }}>
-                {pgResult === 'correct' ? 'Chính xác! 🎉' : 'Sai rồi! 😢'}
+                {pgResult === 'correct' ? 'Chính xác! 🎉' : 'Lêu lêu sai rồi! 😢'}
               </h2>
-              <p className="pg-sub">Đây là bức tranh bí ẩn:</p>
-              <div className="pg-reveal-img-wrap">
-                <img src={PUZZLE_IMAGE_URL} alt="Hình bí ẩn" className="pg-reveal-img" />
-              </div>
+              {pgResult === 'correct' && (
+                <>
+                  <p className="pg-sub">Đây là bức tranh bí ẩn:</p>
+                  <div className="pg-reveal-img-wrap">
+                    <img src={PUZZLE_IMAGE_URL} alt="Hình bí ẩn" className="pg-reveal-img" />
+                  </div>
+                </>
+              )}
               <button className="qp-action-btn qp-spin-btn" style={{ marginTop: 16 }} onClick={handlePgRevealNext}>
                 {pgResult === 'correct' ? '→ Chọn nguyên liệu' : '← Quay lại'}
               </button>
@@ -439,7 +441,7 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
           {pgPhase === 'pick-items' && (
             <div className="qp-overlay-card pg-card pg-pick-card">
               <div className="pg-header-icon pg-success-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
               </div>
               <h2 className="pg-title" style={{ color: '#4ade80' }}>Chính xác!</h2>
               <p className="pg-sub">Chọn nguyên liệu đội <strong style={{ color: pgTeam.color }}>{pgTeam.name}</strong> còn thiếu:</p>
@@ -455,7 +457,7 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
                       <span className="pg-item-name">{ing.name}</span>
                       {pgPickedItems.includes(ing.name) && (
                         <span className="pg-item-check">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
                         </span>
                       )}
                     </button>
