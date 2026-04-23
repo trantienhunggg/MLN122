@@ -148,6 +148,7 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
     const available = getAvailableIngredientsForTeam(tid)
 
     if (available.length === 0) {
+      alert(`Đội ${teams.find(t => t.id === tid)?.name} đã thu thập đủ toàn bộ nguyên liệu (tối đa 2 cái mỗi loại)! Vòng quay sẽ được bỏ qua.`)
       setPhase('board')
       setSpinnerTeamId(teams[0]?.id ?? 0)
       setActiveQuestion(null)
@@ -195,6 +196,9 @@ export default function GameController({ teams, teamInventories, teamStars, onAd
 
     // 3. Decide if we finish or continue
     if (nextSpins <= 0 || !stillHasAvailable) {
+      if (!stillHasAvailable && nextSpins > 0) {
+        alert(`Đội ${teams.find(t => t.id === claimTeamId)?.name} đã gom đủ toàn bộ nguyên liệu! Vòng quay sẽ kết thúc sớm.`)
+      }
       setPhase('board')
       setSpinnerTeamId(teams[0]?.id ?? 0)
       setActiveQuestion(null)
